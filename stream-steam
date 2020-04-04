@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+import click
+from cli import colors, echo
+from cli.config import ConfigManager
+from engine import VERSION
+from engine.cloudformation_stack import CloudformationStack
+from juniper.cli import build as juniper_build
+
+ENV = "dev"  # TODO: make it configurable, someday, maybe...
+CF_STACK_NAME = f"stream-steam-{ENV}"
+
+
+@click.group()
+@click.version_option(VERSION, message="StreamSteam, v%(version)s")
+def cli():
+    pass
+
+
+@click.command()
+def config():
+    cfg = ConfigManager(ENV)
+
+    # AWS Credentials and region_name
+    echo.h1(f"Configure your AWS {ENV} env")
+    echo.enum_elm("AWS Access Key", nl=False)
+    cfg.set("aws_access_key_id", click.prompt("", default=cfg.get("aws_access_key_id")))
+
+    echo.enum_elm("AWS Secret Key", nl=False)
+    cfg.set(
+        "aws_secret_access_key",
+        click.prompt("", default=cfg.get("aws_secret_access_key"), hide_input=True, show_default=False),
+    )
+
+    echo.enum_elm("AWS Region", nl=False)
+    cfg.set("aws_region_name", click.prompt("AWS Region", default=cfg.get("aws_region_name") or "eu-central-1"))
+
+    # Geo location lookup
+    echo.h1("Configure IP geolocation lookup - requires an https://ipinfo.io account")
+    if click.confirm("Do you want to enable IP geolocation lookup?"):
+        echo.enum_elm("IPInfo API Token", nl=False)
+        cfg.set(
+            "ip_info_api_token",
+            click.prompt("", default=cfg.get("ip_info_api_token"), hide_input=True, show_default=False),
+        )
+        cfg.set("ip_geocoding_enabled", "true")
+    else:
+        cfg.set("ip_geocoding_enabled", "false")
+
+    # Device type detection
+    echo.h1("Configure Device Type detection - requires an https://userstack.com/ account ")
+    if click.confirm("Do you want to enable device type detection?"):
+        echo.enum_elm("Userstack API Token", nl=False)
+        cfg.set(
+            "userstack_api_token",
+            click.prompt("", default=cfg.get("userstack_api_token"), hide_input=True, show_default=False),
+        )
+        cfg.set("device_detection_enabled", "true")
+    else:
+        cfg.set("device_detection_enabled", "false")
+
+    cfg.write()
+    echo.success(f"\nConfig written to {cfg.file}")
+    echo.success("Run this command at any time to update your existing configuration.")
+
+
+@click.command()
+def build():
+    echo.success(f"Build lambda packages")
+    os.chdir("./event_receiver")
+    del sys.argv[0]
+    juniper_build()
+
+
+@click.command()
+def deploy():
+    echo.success(f"Deploying {CF_STACK_NAME}")
+    cfg = ConfigManager(ENV)
+    cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+    cf_stack.deploy()
+    echo.success(f"\nSuccessfully deployed {CF_STACK_NAME}")
+
+
+@click.command()
+def describe_deployment():
+    echo.success(f"Get details of stack {CF_STACK_NAME}")
+    cfg = ConfigManager(ENV)
+    cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+
+    echo.h1("Stack infos")
+    for output in cf_stack.get_outputs():
+        echo.enum_elm(f"{output['OutputKey']}: {output['OutputValue']}")
+
+
+@click.command()
+def destroy():
+    echo.warning(
+        f"Are you sure?! All components of your stack '{CF_STACK_NAME}' including S3 Buckets will be delete...",
+        nl=False,
+    )
+    if click.confirm(""):
+        echo.success(f"\nDestroying {CF_STACK_NAME}")
+        cfg = ConfigManager(ENV)
+        cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+        cf_stack.destroy()
+        echo.success(f"\nSuccessfully deleted {CF_STACK_NAME}")
+
+
+cli.add_command(config)
+cli.add_command(build)
+cli.add_command(deploy)
+cli.add_command(describe_deployment)
+cli.add_command(destroy)
+
+
+if __name__ == "__main__":
+    click.echo("")
+    click.secho(r"   ______                     ______", fg=colors.PRIMARY)
+    click.secho(r"  / __/ /________ ___ ___ _  / __/ /____ ___ ___ _ ", fg=colors.PRIMARY)
+    click.secho(r" _\ \/ __/ __/ -_) _ `/  ' \_\ \/ __/ -_) _ `/  ' ", fg=colors.PRIMARY)
+    click.secho(r"/___/\__/_/  \__/\_,_/_/_/_/___/\__/\__/\_,_/_/_/_/", fg=colors.SECONDARY)
+    click.echo("")
+    click.echo("")
+    cli()

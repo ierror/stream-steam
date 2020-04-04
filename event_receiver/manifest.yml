@@ -1,0 +1,6 @@
+functions:
+  event_receiver:
+    image: lambci/lambda:build-python3.7
+    requirements: ./requirements.txt
+    include:
+    - ./lambda.py
