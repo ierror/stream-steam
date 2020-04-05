@@ -4,7 +4,6 @@ import re
 
 import botocore
 from boto3.session import Session
-from cached_property import cached_property
 from cli import echo
 from troposphere import GetAtt, Join, Output, Ref, Template
 from troposphere.apigateway import (
@@ -34,6 +33,9 @@ event_receiver_zipfile = os.path.join("event_receiver", "dist", "event_receiver.
 
 class CloudformationStack:
     def __init__(self, name, cfg):
+        # check for valid stack name
+        if not re.match("^[a-z-]+$", name):
+            self.error_and_exit(f"Invalid Stack name '{name}' provided. Only characters a-z and - are allowed")
         self.name = name
         self.cfg = cfg
         self.region_name = cfg.get("aws_region_name")
@@ -43,6 +45,14 @@ class CloudformationStack:
             aws_secret_access_key=cfg.get("aws_secret_access_key"),
         )
         self._build_resources()
+
+    def error_and_exit(self, msg):
+        echo.error(msg)
+        exit(0)
+
+    def normalize_resource_name(self, name):
+        # e.g. glue-database => stream-steam-dev-glue-database
+        return f"{self.name}-{name}"
 
     @classmethod
     def artifact_filename_hashed(cls, artifact_file):
@@ -113,8 +123,16 @@ class CloudformationStack:
             echo.info(f"waiting for stack to be ready...")
             waiter.wait(StackName=self.name)
         except (botocore.exceptions.ClientError, botocore.exceptions.WaiterError) as ex:
-            if hasattr(ex, "response") and ex.response["Error"]["Message"] == "No updates are to be performed.":
-                echo.warning("no changes to deploy")
+            if hasattr(ex, "response"):
+                if ex.response["Error"]["Message"] == "No updates are to be performed.":
+                    echo.warning("no changes to deploy")
+                elif "DELETE_IN_PROGRESS" in ex.response["Error"]["Message"]:
+                    self.error_and_exit("Stack already destroyed. Delete in progress...")
+                elif "UPDATE_IN_PROGRESS" in ex.response["Error"]["Message"]:
+                    echo.warning("Stack is already updating...")
+                    exit(0)
+                else:
+                    raise ex
             else:
                 raise ex
         else:
@@ -136,14 +154,8 @@ class CloudformationStack:
 
     def exists_or_exit(self):
         if not self.exists:
-            echo.error(f"Stack '{self.name}' does not exist")
-            exit(0)
+            self.error_and_exit(f"Stack '{self.name}' does not exist")
         return True
-
-    @cached_property
-    def aws_compat_res_name(self):
-        # uppercase chars to hyphen and to lower
-        return re.sub("(?<!^)(?=[A-Z])", "-", self.name).lower()
 
     def get_outputs(self):
         if self.exists_or_exit():
@@ -173,7 +185,6 @@ class CloudformationStack:
 
         # S3 Bucket
         s3_bucket_obj = Bucket("S3Bucket", AccessControl=Private)
-
         s3_bucket = self.template.add_resource(s3_bucket_obj)
         s3_bucket_output_res = Output("S3BucketName", Value=Ref(s3_bucket), Description="S3 bucket")
         self.template.add_output(s3_bucket_output_res)
@@ -182,7 +193,7 @@ class CloudformationStack:
         self.template_initial.add_output(s3_bucket_output_res)
 
         # Kinesis Firehose event_in compressor
-        event_compressor_name = "FirehosEventCompressor"
+        event_compressor_name = self.normalize_resource_name("event-compressor")
         event_compressor = DeliveryStream(
             "EventCompressor",
             DeliveryStreamName=event_compressor_name,
@@ -243,7 +254,7 @@ class CloudformationStack:
         )
 
         # Event Receiver Lambda
-        event_receiver_lambda_name = f"{self.aws_compat_res_name}-event_receiver"
+        event_receiver_lambda_name = self.normalize_resource_name("event-receiver")
 
         self.template.add_resource(
             Function(
@@ -270,7 +281,9 @@ class CloudformationStack:
         )
 
         # API Gateway
-        api_gateway = self.template.add_resource(RestApi("APIGateway", Name="APIGateway"))
+        api_gateway = self.template.add_resource(
+            RestApi("APIGateway", Name=self.normalize_resource_name("api-gateway"))
+        )
 
         # API Gateway Stage
         api_gateway_deployment = self.template.add_resource(

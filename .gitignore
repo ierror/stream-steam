@@ -18,3 +18,4 @@ var/
 *.pyc
 .project
 /tmp/
+/clients/web_tracking/index.html
