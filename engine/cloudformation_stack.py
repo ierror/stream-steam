@@ -101,11 +101,7 @@ class CloudformationStack:
                 waiter = cf_client.get_waiter("stack_create_complete")
             else:
                 echo.info("upload deployment artifacts")
-                stack_result = cf_client.describe_stacks(StackName=self.name)
-                s3_bucket_name = [o for o in stack_result["Stacks"][0]["Outputs"] if o["OutputKey"] == "S3BucketName"][
-                    0
-                ]["OutputValue"]
-
+                s3_bucket_name = self.get_output("S3BucketName")
                 s3_client.upload_file(
                     event_receiver_zipfile,
                     s3_bucket_name,
@@ -143,9 +139,7 @@ class CloudformationStack:
                 # Deploy API
                 echo.info("deploying API")
                 stack_result = cf_client.describe_stacks(StackName=stack_result["StackId"])
-                api_id = [o for o in stack_result["Stacks"][0]["Outputs"] if o["OutputKey"] == "APIId"][0][
-                    "OutputValue"
-                ]
+                api_id = self.get_output("APIId")
                 api_gateway_client.create_deployment(restApiId=api_id, stageName=API_DEPLOYMENT_STAGE)
 
     @property
@@ -163,11 +157,14 @@ class CloudformationStack:
             stack_result = cf_client.describe_stacks(StackName=self.name)
             return stack_result["Stacks"][0]["Outputs"]
 
+    def get_output(self, output_key):
+        return [o for o in self.get_outputs() if o["OutputKey"] == output_key][0]["OutputValue"]
+
     def destroy(self):
         cf_client = self.boto_session.client("cloudformation")
 
         # empty bucket - only empty can be deleted afterwards
-        bucket_name = [o for o in self.get_outputs() if o["OutputKey"] == "S3BucketName"][0]["OutputValue"]
+        bucket_name = self.get_output("S3BucketName")
         echo.info(f"deleting files in S3 Bucket {bucket_name}...")
         s3_resource = self.boto_session.resource("s3")
         bucket = s3_resource.Bucket(bucket_name)

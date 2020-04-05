@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import os
 import sys
+from webbrowser import open as webbrowser_open
 
 import click
 from cli import colors, echo
 from cli.config import ConfigManager
+from clients.web_tracking.helper import create_demo_index_file
 from engine import VERSION
 from engine.cloudformation_stack import CloudformationStack
 from juniper.cli import build as juniper_build
@@ -108,10 +110,19 @@ def destroy():
         echo.success(f"\nSuccessfully deleted {CF_STACK_NAME}")
 
 
+@click.command()
+def demo_web_tracking():
+    cfg = ConfigManager(ENV)
+    cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+    index_file = create_demo_index_file(f'{cf_stack.get_output("APIGatewayEndpoint")}/event-receiver/')
+    webbrowser_open(f"file://{index_file}")
+
+
 cli.add_command(config)
 cli.add_command(build)
 cli.add_command(deploy)
 cli.add_command(describe_deployment)
+cli.add_command(demo_web_tracking)
 cli.add_command(destroy)
 
 
