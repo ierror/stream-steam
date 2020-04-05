@@ -20,6 +20,7 @@ from troposphere.apigateway import (
 )
 from troposphere.awslambda import Code, Environment, Function
 from troposphere.firehose import BufferingHints, DeliveryStream, S3DestinationConfiguration
+from troposphere.glue import Crawler, Database, DatabaseInput, S3Target, Schedule, SchemaChangePolicy, Targets
 from troposphere.iam import Policy, Role
 from troposphere.s3 import Bucket, Private
 
@@ -52,7 +53,9 @@ class CloudformationStack:
 
     def normalize_resource_name(self, name):
         # e.g. glue-database => stream-steam-dev-glue-database
-        return f"{self.name}-{name}"
+        if name:
+            return f"{self.name}-{name}"
+        return self.name
 
     @classmethod
     def artifact_filename_hashed(cls, artifact_file):
@@ -90,14 +93,14 @@ class CloudformationStack:
 
         try:
             if not self.exists:
-                echo.info("creating stack")
+                echo.info("creating initial stack")
                 stack_created = True
                 params = {
                     "StackName": self.name,
                     "TemplateBody": self.template_initial.to_json(),
                     "Capabilities": ["CAPABILITY_IAM"],
                 }
-                stack_result = cf_client.create_stack(**params)
+                cf_client.create_stack(**params)
                 waiter = cf_client.get_waiter("stack_create_complete")
             else:
                 echo.info("upload deployment artifacts")
@@ -114,7 +117,7 @@ class CloudformationStack:
                     "TemplateBody": self.template.to_json(),
                     "Capabilities": ["CAPABILITY_IAM"],
                 }
-                stack_result = cf_client.update_stack(**params)
+                cf_client.update_stack(**params)
                 waiter = cf_client.get_waiter("stack_update_complete")
             echo.info(f"waiting for stack to be ready...")
             waiter.wait(StackName=self.name)
@@ -138,7 +141,6 @@ class CloudformationStack:
             else:
                 # Deploy API
                 echo.info("deploying API")
-                stack_result = cf_client.describe_stacks(StackName=stack_result["StackId"])
                 api_id = self.get_output("APIId")
                 api_gateway_client.create_deployment(restApiId=api_id, stageName=API_DEPLOYMENT_STAGE)
 
@@ -377,4 +379,113 @@ class CloudformationStack:
                 ),
                 Output("APIId", Value=Ref(api_gateway), Description="API ID"),
             ]
+        )
+
+        # Glue Execution Role
+        self.template.add_resource(
+            Role(
+                "GlueExecutionRole",
+                Path="/",
+                Policies=[
+                    Policy(
+                        PolicyName="root",
+                        PolicyDocument={
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {"Action": ["logs:*"], "Resource": "arn:aws:logs:*:*:*", "Effect": "Allow"},
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "glue:*",
+                                        "s3:GetBucketLocation",
+                                        "s3:ListBucket",
+                                        "s3:ListAllMyBuckets",
+                                        "s3:GetBucketAcl",
+                                        "iam:ListRolePolicies",
+                                        "iam:GetRole",
+                                        "iam:GetRolePolicy",
+                                        "cloudwatch:PutMetricData",
+                                    ],
+                                    "Resource": ["*"],
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": ["s3:CreateBucket"],
+                                    "Resource": ["arn:aws:s3:::aws-glue-*"],
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+                                    "Resource": ["arn:aws:s3:::aws-glue-*/*", "arn:aws:s3:::*/*aws-glue-*/*"],
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": ["s3:GetObject"],
+                                    "Resource": ["arn:aws:s3:::crawler-public*", "arn:aws:s3:::aws-glue-*"],
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+                                    "Resource": ["arn:aws:logs:*:*:/aws-glue/*"],
+                                },
+                                {
+                                    "Action": ["s3:*"],
+                                    "Resource": Join("", [GetAtt("S3Bucket", "Arn"), "/*"]),
+                                    "Effect": "Allow",
+                                },
+                                {
+                                    "Action": ["iam:PassRole"],
+                                    "Effect": "Allow",
+                                    "Resource": ["arn:aws:iam::*:role/service-role/AWSGlueServiceRole*"],
+                                    "Condition": {"StringLike": {"iam:PassedToService": ["glue.amazonaws.com"]}},
+                                },
+                                {
+                                    "Action": ["iam:PassRole"],
+                                    "Effect": "Allow",
+                                    "Resource": "arn:aws:iam::*:role/AWSGlueServiceRole*",
+                                    "Condition": {"StringLike": {"iam:PassedToService": ["glue.amazonaws.com"]}},
+                                },
+                            ],
+                        },
+                    )
+                ],
+                AssumeRolePolicyDocument={
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": ["sts:AssumeRole"],
+                            "Effect": "Allow",
+                            "Principal": {"Service": ["glue.amazonaws.com"]},
+                        }
+                    ],
+                },
+            )
+        )
+
+        # Glue Database
+        glue_catalog_id = Ref("AWS::AccountId")
+        glue_database_name = self.normalize_resource_name("")
+        self.template.add_resource(
+            Database(
+                "GlueDatabase",
+                CatalogId=glue_catalog_id,
+                DatabaseInput=DatabaseInput(
+                    Name=glue_database_name, LocationUri=Join("", ["s3://", Ref(s3_bucket), "/tmp/glue/"]),
+                ),
+            )
+        )
+
+        # Glue Crawler
+        self.template.add_resource(
+            Crawler(
+                "GlueCrawler",
+                Name=self.normalize_resource_name("events-enriched"),
+                DatabaseName=glue_database_name,
+                Role=GetAtt("GlueExecutionRole", "Arn"),
+                Targets=Targets(S3Targets=[S3Target(Path=Join("", ["s3://", Ref(s3_bucket), "/enriched/"]))]),
+                SchemaChangePolicy=SchemaChangePolicy(
+                    UpdateBehavior="UPDATE_IN_DATABASE", DeleteBehavior="DELETE_FROM_DATABASE",
+                ),
+                Schedule=Schedule(ScheduleExpression="cron(00 */1 * * ? *)"),
+            )
         )

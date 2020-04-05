@@ -3,6 +3,7 @@ import os
 import sys
 from webbrowser import open as webbrowser_open
 
+import botocore
 import click
 from cli import colors, echo
 from cli.config import ConfigManager
@@ -111,6 +112,19 @@ def destroy():
 
 
 @click.command()
+def run_schema_crawler():
+    cfg = ConfigManager(ENV)
+    cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+    try:
+        glue = cf_stack.boto_session.client("glue")
+        glue.start_crawler(Name="stream-steam-dev-events-enriched")
+    except botocore.exceptions.ClientError as e:
+        echo.error(e)
+    else:
+        echo.success("Crawler successfully started")
+
+
+@click.command()
 def demo_web_tracking():
     cfg = ConfigManager(ENV)
     cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
@@ -122,6 +136,7 @@ cli.add_command(config)
 cli.add_command(build)
 cli.add_command(deploy)
 cli.add_command(describe_deployment)
+cli.add_command(run_schema_crawler)
 cli.add_command(demo_web_tracking)
 cli.add_command(destroy)
 
