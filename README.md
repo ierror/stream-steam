@@ -1,8 +1,9 @@
 StreamSteam
 -----------
 
-Scaleable and Hackable Analytics on AWS 
+Scalable and Hackable Analytics for AWS
 
+> Installed and configured in minutes, yet expandable and scalable  
 
 ## Installation and Setup
 
@@ -12,7 +13,7 @@ Fork the project and run git clone as always
 
     pip3 install pipenv
 
-###. Install project dependencies. pipenv takes care of creating the virtualenv for you - omit the `--dev` flag for installations in production environments    
+### Install project dependencies. pipenv takes care of creating the virtualenv for you - omit the `--dev` flag for installations in production environments    
     
     pipenv install --dev --python python3.7
     
@@ -28,7 +29,7 @@ Configure the project
     
 Deploy it!
 
-    ./stream-steam config
+    ./stream-steam deploy
     
 Describe your deployment
 
@@ -36,7 +37,7 @@ Describe your deployment
     
 Run the Webtracking Demo
 
-    ./steam-steam webtracking-demo
+    ./steam-steam demo-web-tracking
     
 After 60s you can inspect the enriched events in your S3 Bucket (S3BucketName)
 
