@@ -9,7 +9,7 @@ from cli import colors, echo
 from cli.config import ConfigManager
 from clients.web_tracking.helper import HTTP_SERVE_ADDRESS, HTTP_SERVE_PORT, create_demo_index_file, serve_demo
 from engine import VERSION
-from engine.cloudformation_stack import CloudformationStack
+from engine.stack import CloudformationStack
 from juniper.cli import build as juniper_build
 
 ENV = "dev"  # TODO: make it configurable, someday, maybe...
@@ -72,7 +72,7 @@ def config():
 @click.command()
 def build():
     echo.success(f"Build lambda packages")
-    os.chdir("./event_receiver")
+    os.chdir("engine/event_receiver")
     del sys.argv[0]
     juniper_build()
 

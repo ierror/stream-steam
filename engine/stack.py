@@ -31,7 +31,7 @@ S3_TEPM_PREFIX = "tmp/"
 S3_ENRICHED_PREFIX = "enriched/"
 S3_DEPLOYMENT_PREFIX = f"{S3_TEPM_PREFIX}deployment/"
 
-event_receiver_zipfile = os.path.join("event_receiver", "dist", "event_receiver.zip")
+event_receiver_zipfile = os.path.join(PROJECT_ROOT, "engine", "event_receiver", "dist", "event_receiver.zip")
 
 
 class CloudformationStack:
