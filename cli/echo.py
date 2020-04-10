@@ -1,14 +1,14 @@
 from click import echo, secho
 
-from .colors import ERROR, PRIMARY, SECONDARY, SUCCESS, WARNING
+from .colors import ERROR, PRIMARY, SUCCESS, WARNING
 
 
 def h1(text):
     secho(f"\n## {text}", fg=PRIMARY)
 
 
-def enum_elm(text, nl=True):
-    secho("- ", fg=SECONDARY, nl=False)
+def enum_elm(text, nl=True, dash_color=SUCCESS):
+    secho("- ", fg=dash_color, nl=False)
     echo(f"{text}", nl=nl)
 
 
@@ -26,4 +26,4 @@ def warning(text, nl=True):
 
 def error(text, nl=True):
     secho(f"\n## Error", fg=ERROR)
-    enum_elm(f"{text}\n", nl=nl)
+    enum_elm(f"{text}\n", nl=nl, dash_color=ERROR)

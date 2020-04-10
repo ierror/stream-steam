@@ -3,17 +3,21 @@ import os
 import sys
 from webbrowser import open as webbrowser_open
 
-import botocore
 import click
 from cli import colors, echo
+from cli.colors import WARNING
 from cli.config import ConfigManager
 from clients.web_tracking.helper import HTTP_SERVE_ADDRESS, HTTP_SERVE_PORT, create_demo_index_file, serve_demo
 from engine import VERSION
 from engine.stack import CloudformationStack
 from juniper.cli import build as juniper_build
+from modules import Modules
 
 ENV = "dev"  # TODO: make it configurable, someday, maybe...
 CF_STACK_NAME = f"stream-steam-{ENV}"
+
+cfg = ConfigManager(ENV)
+modules = Modules(cfg)
 
 
 @click.group()
@@ -24,10 +28,8 @@ def cli():
 
 @click.command()
 def config():
-    cfg = ConfigManager(ENV)
-
     # AWS Credentials and region_name
-    echo.h1(f"Configure your AWS {ENV} env")
+    echo.h1(f"Configuration of your AWS '{ENV}' env")
     echo.enum_elm("AWS Access Key", nl=False)
     cfg.set("aws_access_key_id", click.prompt("", default=cfg.get("aws_access_key_id")))
 
@@ -65,13 +67,16 @@ def config():
         cfg.set("device_detection_enabled", "false")
 
     cfg.write()
-    echo.success(f"\nConfig written to {cfg.file}")
-    echo.success("Run this command at any time to update your existing configuration.")
+    echo.info("")
+    echo.info("Run this command at any time to update your existing configuration.")
+    echo.success(f"Config written to {cfg.file}")
+    echo.info("")
 
 
 @click.command()
 def build():
-    echo.success(f"Build lambda packages")
+    echo.h1("Packaging")
+    echo.enum_elm("building lambda packages...")
     os.chdir("engine/event_receiver")
     del sys.argv[0]
     juniper_build()
@@ -79,54 +84,96 @@ def build():
 
 @click.command()
 def deploy():
-    echo.success(f"Deploying {CF_STACK_NAME}")
-    cfg = ConfigManager(ENV)
+    echo.h1(f"Deployment '{CF_STACK_NAME}'")
+    echo.enum_elm("deploying...")
     cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
     cf_stack.deploy()
-    echo.success(f"\nSuccessfully deployed {CF_STACK_NAME}")
+    echo.enum_elm("your stack is up2date!")
+    echo.info("")
 
 
 @click.command()
 def describe_deployment():
-    echo.success(f"Get details of stack {CF_STACK_NAME}")
-    cfg = ConfigManager(ENV)
+    echo.h1("Fetching Stack Infos")
     cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+    echo.enum_elm("loading...")
 
+    outputs = cf_stack.get_outputs()
     echo.h1("Stack infos")
-    for output in cf_stack.get_outputs():
+    for output in outputs:
         echo.enum_elm(f"{output['OutputKey']}: {output['OutputValue']}")
+
+
+@cli.group()
+def module():
+    pass
+
+
+@module.command("list")
+def module_list():
+    echo.h1("Enabled Modules")
+    for mod_key, mod_info in modules.enabled().items():
+        echo.enum_elm(f"{mod_key}: {mod_info['DESCRIPTION']}")
+
+    echo.h1("Disabled Modules")
+    for mod_key, mod_info in modules.disabled().items():
+        echo.enum_elm(f"{mod_key}: {mod_info['DESCRIPTION']}")
+
+
+@module.command("enable")
+@click.option("--name", required=True, type=click.Choice(modules.keys(), case_sensitive=False))
+def module_enable(name):
+    echo.h1(f"Module '{name}'")
+    if name in modules.enabled().keys():
+        echo.error("module already enabled")
+        exit(2)
+
+    cfg.add_to_list("modules_enabled", name)
+    cfg.write()
+    echo.enum_elm("successfully enabled module")
+    echo.enum_elm("your modified stack is ready for deployment")
+    echo.info("")
+
+
+@module.command("disable")
+@click.option("--name", required=True, type=click.Choice(modules.keys(), case_sensitive=False))
+def module_disable(name):
+    echo.h1(f"Module '{name}'")
+
+    if name not in modules.enabled().keys():
+        echo.error("module is not enabled, therefore it can't be deactivated")
+        exit(2)
+
+    echo.enum_elm(
+        "are you sure?! All module related components, including S3 Buckets, will be deleted on the next deployment...",
+        nl=False,
+        dash_color=WARNING,
+    )
+    if click.confirm(""):
+        cfg.remove_from_list("modules_enabled", name)
+        cfg.write()
+        echo.enum_elm("successfully disabled module")
+        echo.info("")
 
 
 @click.command()
 def destroy():
-    echo.warning(
-        f"Are you sure?! All components of your stack '{CF_STACK_NAME}' including S3 Buckets will be delete...",
+    echo.h1(f"Destroy stack '{CF_STACK_NAME}' !!!!11einself")
+    echo.enum_elm(
+        "are you sure?! All components of your stack including S3 Buckets, will be delete...",
         nl=False,
+        dash_color=WARNING,
     )
     if click.confirm(""):
-        echo.success(f"\nDestroying {CF_STACK_NAME}")
-        cfg = ConfigManager(ENV)
+        echo.enum_elm("destroying...")
         cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
         cf_stack.destroy()
-        echo.success(f"\nSuccessfully deleted {CF_STACK_NAME}")
-
-
-@click.command()
-def run_schema_crawler():
-    cfg = ConfigManager(ENV)
-    cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
-    try:
-        glue = cf_stack.boto_session.client("glue")
-        glue.start_crawler(Name="stream-steam-dev-events-enriched")
-    except botocore.exceptions.ClientError as e:
-        echo.error(e)
-    else:
-        echo.success("Crawler successfully started")
+        echo.enum_elm("successfully destroyed")
+        echo.info("")
 
 
 @click.command()
 def demo_web_tracking():
-    cfg = ConfigManager(ENV)
     serve_url = f"http://{HTTP_SERVE_ADDRESS}:{HTTP_SERVE_PORT}/"
 
     # create index.html
@@ -146,7 +193,6 @@ cli.add_command(config)
 cli.add_command(build)
 cli.add_command(deploy)
 cli.add_command(describe_deployment)
-cli.add_command(run_schema_crawler)
 cli.add_command(demo_web_tracking)
 cli.add_command(destroy)
 
