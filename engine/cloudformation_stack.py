@@ -20,7 +20,6 @@ from troposphere.apigateway import (
 )
 from troposphere.awslambda import Code, Environment, Function
 from troposphere.firehose import BufferingHints, DeliveryStream, S3DestinationConfiguration
-from troposphere.glue import Crawler, Database, DatabaseInput, S3Target, Schedule, SchemaChangePolicy, Targets
 from troposphere.iam import Policy, Role
 from troposphere.s3 import Bucket, Private
 
@@ -28,6 +27,9 @@ API_DEPLOYMENT_STAGE = "v1"
 PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "")
 
 OUTPUT_API_GATEWAY_ENDPOINT = "APIGatewayEndpoint"
+S3_TEPM_PREFIX = "tmp/"
+S3_ENRICHED_PREFIX = "enriched/"
+S3_DEPLOYMENT_PREFIX = f"{S3_TEPM_PREFIX}deployment/"
 
 event_receiver_zipfile = os.path.join("event_receiver", "dist", "event_receiver.zip")
 
@@ -49,7 +51,7 @@ class CloudformationStack:
 
     def error_and_exit(self, msg):
         echo.error(msg)
-        exit(0)
+        exit(1)
 
     def normalize_resource_name(self, name):
         # e.g. glue-database => stream-steam-dev-glue-database
@@ -108,7 +110,7 @@ class CloudformationStack:
                 s3_client.upload_file(
                     event_receiver_zipfile,
                     s3_bucket_name,
-                    f"deployment/artifacts/{self.artifact_filename_hashed(event_receiver_zipfile)}",
+                    f"{S3_DEPLOYMENT_PREFIX}{self.artifact_filename_hashed(event_receiver_zipfile)}",
                 )
 
                 echo.info("updating stack")
@@ -204,7 +206,7 @@ class CloudformationStack:
                 #     Enabled=True, LogGroupName="FirehosEventCompressor", LogStreamName="FirehosEventCompressor",
                 # ),
                 CompressionFormat="GZIP",
-                Prefix="enriched/",
+                Prefix=S3_ENRICHED_PREFIX,
                 RoleARN=GetAtt("LambdaExecutionRole", "Arn"),
             ),
         )
@@ -261,7 +263,7 @@ class CloudformationStack:
                 FunctionName=event_receiver_lambda_name,
                 Code=Code(
                     S3Bucket=Ref(s3_bucket),
-                    S3Key=f"deployment/artifacts/{self.artifact_filename_hashed(event_receiver_zipfile)}",
+                    S3Key=f"{S3_DEPLOYMENT_PREFIX}{self.artifact_filename_hashed(event_receiver_zipfile)}",
                 ),
                 Handler="lambda.lambda_handler",
                 Environment=Environment(
@@ -459,33 +461,5 @@ class CloudformationStack:
                         }
                     ],
                 },
-            )
-        )
-
-        # Glue Database
-        glue_catalog_id = Ref("AWS::AccountId")
-        glue_database_name = self.normalize_resource_name("")
-        self.template.add_resource(
-            Database(
-                "GlueDatabase",
-                CatalogId=glue_catalog_id,
-                DatabaseInput=DatabaseInput(
-                    Name=glue_database_name, LocationUri=Join("", ["s3://", Ref(s3_bucket), "/tmp/glue/"]),
-                ),
-            )
-        )
-
-        # Glue Crawler
-        self.template.add_resource(
-            Crawler(
-                "GlueCrawler",
-                Name=self.normalize_resource_name("events-enriched"),
-                DatabaseName=glue_database_name,
-                Role=GetAtt("GlueExecutionRole", "Arn"),
-                Targets=Targets(S3Targets=[S3Target(Path=Join("", ["s3://", Ref(s3_bucket), "/enriched/"]))]),
-                SchemaChangePolicy=SchemaChangePolicy(
-                    UpdateBehavior="UPDATE_IN_DATABASE", DeleteBehavior="DELETE_FROM_DATABASE",
-                ),
-                Schedule=Schedule(ScheduleExpression="cron(00 */1 * * ? *)"),
             )
         )
