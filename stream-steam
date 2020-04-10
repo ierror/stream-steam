@@ -7,7 +7,7 @@ import botocore
 import click
 from cli import colors, echo
 from cli.config import ConfigManager
-from clients.web_tracking.helper import create_demo_index_file
+from clients.web_tracking.helper import HTTP_SERVE_ADDRESS, HTTP_SERVE_PORT, create_demo_index_file, serve_demo
 from engine import VERSION
 from engine.cloudformation_stack import CloudformationStack
 from juniper.cli import build as juniper_build
@@ -127,9 +127,19 @@ def run_schema_crawler():
 @click.command()
 def demo_web_tracking():
     cfg = ConfigManager(ENV)
+    serve_url = f"http://{HTTP_SERVE_ADDRESS}:{HTTP_SERVE_PORT}/"
+
+    # create index.html
     cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
-    index_file = create_demo_index_file(f'{cf_stack.get_output("APIGatewayEndpoint")}/event-receiver/')
-    webbrowser_open(f"file://{index_file}")
+    create_demo_index_file(f'{cf_stack.get_output("APIGatewayEndpoint")}/event-receiver/')
+
+    # serve the demo
+    echo.info(f"Serving demo at {serve_url}")
+    echo.warning("Quit the server with strg|control-c.")
+    serve_demo()
+
+    # open browser
+    webbrowser_open(serve_url)
 
 
 cli.add_command(config)
