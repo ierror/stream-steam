@@ -1,6 +1,7 @@
 import json
 import os
-from collections import defaultdict
+from collections import defaultdict, namedtuple
+from datetime import datetime, timezone
 from urllib.parse import parse_qsl, urlparse
 from uuid import uuid4
 
@@ -13,38 +14,47 @@ s3_client = boto3.client("s3")
 API_USERSTACK_ENDPOINT = "http://api.userstack.com/detect"
 API_IPINFO_ENDPOINT = "https://ipinfo.io"
 
+Parameter = namedtuple("Parameter", ["name_in", "name_out", "type"])
 
-INCOMING_PARAMS_TO_READABLE = {
-    "idsite": "site_id",
-    "r": "random_part",
-    "h": "hour",
-    "m": "minute",
-    "s": "second",
-    "_idts": "visitor_id_created_ts",
-    "_idvc": "visitor_visit_count",
-    "_refts": "referral_ts",
-    "_viewts": "visitor_last_visit_ts",
-    "res": "display_resolutions",
-    "gt_ms": "performance_generation_time_ms",
-    "pv_id": "page_view_id",
-    "url": "page_view_url",
-    "action_name": "action_name",
-    "ag": "supports_silverlight",
-    "cookie": "supports_cookie",
-    "dir": "supports_director",
-    "fla": "supports_flash",
-    "gears": "supports_gears",
-    "java": "supports_java",
-    "pdf": "supports_pdf",
-    "qt": "supports_quicktime",
-    "wma": "supports_mplayer2",
-    "realp": "supports_realaudio",
-    "send_image": "send_image",
-    "e_c": "event_category",
-    "e_a": "event_action",
-    "e_n": "event_value_name",
-    "e_v": "event_value_numeric",
-}
+# _cvar custom variables
+# _rcn Campaign name
+# _rck Campaign Keyword
+#  lang: Accept-Language HTTP
+#  uid user_id (str)
+# cid  visitor ID (str)
+# dimension[0-999] custom dimension
+
+
+INCOMING_PARAMS_MAPPING = [
+    # see https://developer.matomo.org/api-reference/tracking-api for details
+    Parameter("idsite", "site_id", int),
+    Parameter("r", "random_part", int),
+    Parameter("_idts", "visitor_id_created_ts", int),
+    Parameter("_idvc", "visitor_visit_count", int),
+    Parameter("_refts", "referral_ts", int),
+    Parameter("urlref", "referral_url", str),
+    Parameter("_viewts", "visitor_last_visit_ts", int),
+    Parameter("res", "display_resolutions", str),
+    Parameter("gt_ms", "performance_generation_time_ms", int),
+    Parameter("pv_id", "page_view_id", str),
+    Parameter("url", "page_view_url", str),
+    Parameter("action_name", "action_name", str),
+    Parameter("ag", "supports_silverlight", bool),
+    Parameter("cookie", "supports_cookie", bool),
+    Parameter("dir", "supports_director", bool),
+    Parameter("fla", "supports_flash", bool),
+    Parameter("gears", "supports_gears", bool),
+    Parameter("java", "supports_java", bool),
+    Parameter("pdf", "supports_pdf", bool),
+    Parameter("qt", "supports_quicktime", bool),
+    Parameter("wma", "supports_mplayer2", bool),
+    Parameter("realp", "supports_realaudio", bool),
+    Parameter("send_image", "send_image", bool),
+    Parameter("e_c", "event_category", str),
+    Parameter("e_a", "event_action", str),
+    Parameter("e_n", "event_value_name", str),
+    Parameter("e_v", "event_value_numeric", float),
+]
 
 LOOKUP_CACHE = {
     "user_agent": defaultdict(dict),
@@ -54,7 +64,6 @@ LOOKUP_CACHE = {
 
 def lambda_handler(event_in, context):
     print(event_in)
-
     event_out = {
         "id": str(uuid4()),
         "user_agent": event_in["requestContext"]["identity"]["userAgent"],
@@ -67,12 +76,19 @@ def lambda_handler(event_in, context):
         post_data = json.loads(event_in["body"])["requests"][0]
         post_data = dict(parse_qsl(urlparse(post_data).query))
 
-    # map incoming event_in params to readable ones
-    for param, readable in INCOMING_PARAMS_TO_READABLE.items():
-        if "queryStringParameters" in event_in and event_in["queryStringParameters"].get(param):
-            event_out[readable] = event_in["queryStringParameters"][param]
-        if param in post_data:
-            event_out[readable] = post_data[param]
+    # map incoming event_in params to readable ones and cast values - simple sanity checks... ;)
+    for param in INCOMING_PARAMS_MAPPING:
+        if param.name_in in post_data:
+            event_out[param.name_out] = post_data[param.name_in]
+        elif "queryStringParameters" in event_in and event_in["queryStringParameters"].get(param.name_in):
+            event_out[param.name_out] = event_in["queryStringParameters"][param.name_in]
+
+        # cast values
+        if param.name_out in event_out:
+            if param.type == bool:
+                event_out[param.name_out] = bool(int(event_out[param.name_out]))
+            else:
+                event_out[param.name_out] = param.type(event_out[param.name_out])
 
     # Device lookup
     device_detection_enabled = True if os.environ.get("DEVICE_DETECTION_ENABLED") == "true" else False
@@ -108,13 +124,40 @@ def lambda_handler(event_in, context):
             )
             response.raise_for_status()
             response_json = response.json()
+
+            # split lon lat string in coords
+            # e.g "48.1374,11.5755" => [latitude=48.1374, longitude=11.5755]
+            long_lat_str = response_json.get("loc", "")
+            if "," in long_lat_str:
+                response_json["loc"] = {}
+                response_json["loc"]["latitude"], response_json["loc"]["longitude"] = long_lat_str.split(",")
+                response_json["loc"]["latitude"] = float(response_json["loc"]["latitude"])
+                response_json["loc"]["longitude"] = float(response_json["loc"]["longitude"])
+            else:
+                response_json["loc"] = {
+                    "latitude": None,
+                    "longitude": None,
+                }
+
             LOOKUP_CACHE["ip"][event_out["ip"]] = response_json
             geo_info = response_json
+
         event_out["geo_info"] = geo_info
 
-    # send event_to firehose for raw data archiving
+    # set received_date_time
+    # use api gw info requestContext.requestTime
+    # e.g. '06/Apr/2020:09:07:05 +0000' => 2020-04-06T10:37:38+00:00
+    # parse
+    event_out["received_date_time"] = datetime.strptime(
+        event_in["requestContext"]["requestTime"], "%d/%b/%Y:%H:%M:%S %z"
+    )
+    # to e.g. 2020-04-07T11:04.01.1586251321
+    event_out["received_date_time"] = (
+        event_out["received_date_time"].astimezone(timezone.utc).replace(tzinfo=None).isoformat()
+    )
+
+    # send event_to firehose
     firehose_client.put_record(
         DeliveryStreamName=os.environ["DELIVERY_STREAM_NAME"], Record={"Data": json.dumps(event_out) + "\n"},
     )
-
     return {"statusCode": 200}
