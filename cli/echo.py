@@ -8,7 +8,12 @@ def h1(text):
 
 
 def enum_elm(text, nl=True, dash_color=SUCCESS):
-    secho("- ", fg=dash_color, nl=False)
+    prefix_char = "-"
+    if dash_color == ERROR:
+        prefix_char = "x"
+    elif dash_color == WARNING:
+        prefix_char = "~"
+    secho(f"{prefix_char} ", fg=dash_color, nl=False)
     echo(f"{text}", nl=nl)
 
 

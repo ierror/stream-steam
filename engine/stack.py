@@ -1,10 +1,13 @@
 import hashlib
 import os
 import re
+from pathlib import Path
 
 import botocore
 from boto3.session import Session
 from cli import echo
+from cli.colors import WARNING
+from modules import Modules
 from troposphere import GetAtt, Join, Output, Ref, Template
 from troposphere.apigateway import (
     ApiStage,
@@ -31,7 +34,7 @@ S3_TEPM_PREFIX = "tmp/"
 S3_ENRICHED_PREFIX = "enriched/"
 S3_DEPLOYMENT_PREFIX = f"{S3_TEPM_PREFIX}deployment/"
 
-event_receiver_zipfile = os.path.join(PROJECT_ROOT, "engine", "event_receiver", "dist", "event_receiver.zip")
+event_receiver_zip_path = Path(PROJECT_ROOT, "engine", "event_receiver", "dist", "event_receiver.zip")
 
 
 class CloudformationStack:
@@ -93,9 +96,16 @@ class CloudformationStack:
         s3_client = self.boto_session.client("s3")
         stack_created = False
 
+        # collect templates for enabled modules
+        modules = Modules(self.cfg)
+        for module_name, module_infos in modules.enabled().items():
+            echo.enum_elm(f"running pre deploy code for module '{module_name}'...")
+            if "pre_deploy" in module_infos:
+                module_infos["pre_deploy"](self.boto_session)
+
         try:
             if not self.exists:
-                echo.info("creating initial stack")
+                echo.enum_elm("creating initial stack")
                 stack_created = True
                 params = {
                     "StackName": self.name,
@@ -105,15 +115,15 @@ class CloudformationStack:
                 cf_client.create_stack(**params)
                 waiter = cf_client.get_waiter("stack_create_complete")
             else:
-                echo.info("upload deployment artifacts")
+                echo.enum_elm("upload deployment artifacts")
                 s3_bucket_name = self.get_output("S3BucketName")
                 s3_client.upload_file(
-                    event_receiver_zipfile,
+                    str(event_receiver_zip_path),
                     s3_bucket_name,
-                    f"{S3_DEPLOYMENT_PREFIX}{self.artifact_filename_hashed(event_receiver_zipfile)}",
+                    f"{S3_DEPLOYMENT_PREFIX}{self.artifact_filename_hashed(event_receiver_zip_path)}",
                 )
 
-                echo.info("updating stack")
+                echo.enum_elm("updating stack")
                 params = {
                     "StackName": self.name,
                     "TemplateBody": self.template.to_json(),
@@ -121,28 +131,33 @@ class CloudformationStack:
                 }
                 cf_client.update_stack(**params)
                 waiter = cf_client.get_waiter("stack_update_complete")
-            echo.info(f"waiting for stack to be ready...")
+            echo.enum_elm(f"waiting for stack to be ready...")
             waiter.wait(StackName=self.name)
-        except (botocore.exceptions.ClientError, botocore.exceptions.WaiterError) as ex:
-            if hasattr(ex, "response"):
-                if ex.response["Error"]["Message"] == "No updates are to be performed.":
-                    echo.warning("no changes to deploy")
-                elif "DELETE_IN_PROGRESS" in ex.response["Error"]["Message"]:
-                    self.error_and_exit("Stack already destroyed. Delete in progress...")
-                elif "UPDATE_IN_PROGRESS" in ex.response["Error"]["Message"]:
-                    echo.warning("Stack is already updating...")
-                    exit(0)
+        except (botocore.exceptions.ClientError, botocore.exceptions.WaiterError) as e:
+            if hasattr(e, "response"):
+                if e.response["Error"]["Message"] == "No updates are to be performed.":
+                    echo.enum_elm("no changes to deploy", dash_color=WARNING)
+                elif "DELETE_IN_PROGRESS" in e.response["Error"]["Message"]:
+                    self.error_and_exit("stack already destroyed. Delete in progress...")
+                elif (
+                    "UPDATE_IN_PROGRESS" in e.response["Error"]["Message"]
+                    or "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS" in e.response["Error"]["Message"]
+                    or "CREATE_IN_PROGRESS" in e.response["Error"]["Message"]
+                ):
+                    self.error_and_exit("stack is already updating...")
                 else:
-                    raise ex
+                    raise e
             else:
-                raise ex
+                self.error_and_exit(
+                    "waiter encountered a terminal failure state. Run 'events' command to see latest Events"
+                )
         else:
             if stack_created:
                 # deploy rest
                 self.deploy()
             else:
                 # Deploy API
-                echo.info("deploying API")
+                echo.enum_elm("deploying API")
                 api_id = self.get_output("APIId")
                 api_gateway_client.create_deployment(restApiId=api_id, stageName=API_DEPLOYMENT_STAGE)
 
@@ -164,21 +179,52 @@ class CloudformationStack:
     def get_output(self, output_key):
         return [o for o in self.get_outputs() if o["OutputKey"] == output_key][0]["OutputValue"]
 
+    def get_latest_events(self):
+        cf_client = self.boto_session.client("cloudformation")
+        stack_result = cf_client.describe_stack_events(StackName=self.name)
+        return stack_result["StackEvents"]
+
     def destroy(self):
         cf_client = self.boto_session.client("cloudformation")
 
-        # empty bucket - only empty can be deleted afterwards
-        bucket_name = self.get_output("S3BucketName")
-        echo.info(f"deleting files in S3 Bucket {bucket_name}...")
-        s3_resource = self.boto_session.resource("s3")
-        bucket = s3_resource.Bucket(bucket_name)
-        bucket.objects.all().delete()
-
         if self.exists_or_exit():
-            cf_client.delete_stack(**{"StackName": self.name})
-            waiter = cf_client.get_waiter("stack_delete_complete")
-            echo.info("waiting for stack to be deleted...")
-            waiter.wait(StackName=self.name)
+            # empty bucket - only empty can be deleted afterwards
+            bucket_name = self.get_output("S3BucketName")
+            echo.enum_elm(f"deleting files in S3 Bucket {bucket_name}...")
+            s3_resource = self.boto_session.resource("s3")
+            bucket = s3_resource.Bucket(bucket_name)
+            bucket.objects.all().delete()
+
+            # run post deploy code enabled modules
+            modules = Modules(self.cfg)
+            for module_name, module_infos in modules.enabled().items():
+                echo.enum_elm(f"run pre destroy code for module '{module_name}'")
+                if "pre_destroy" in module_infos:
+                    module_infos["pre_destroy"](self.boto_session)
+
+            try:
+                cf_client.delete_stack(**{"StackName": self.name})
+                waiter = cf_client.get_waiter("stack_delete_complete")
+                echo.enum_elm("waiting for stack to be destroyed...")
+                waiter.wait(StackName=self.name)
+            except (botocore.exceptions.ClientError, botocore.exceptions.WaiterError) as e:
+                if hasattr(e, "response"):
+                    if e.response["Error"]["Message"] == "No updates are to be performed.":
+                        echo.enum_elm("no changes to deploy", dash_color=WARNING)
+                    elif "DELETE_IN_PROGRESS" in e.response["Error"]["Message"]:
+                        self.error_and_exit("stack already destroyed. Delete in progress...")
+                    elif (
+                        "UPDATE_IN_PROGRESS" in e.response["Error"]["Message"]
+                        or "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS" in e.response["Error"]["Message"]
+                        or "CREATE_IN_PROGRESS" in e.response["Error"]["Message"]
+                    ):
+                        self.error_and_exit("stack is already updating...")
+                    else:
+                        raise e
+                else:
+                    self.error_and_exit(
+                        "waiter encountered a terminal failure state. Run 'events' command to see latest Events"
+                    )
 
     def _build_resources(self):
         self.template = Template()
@@ -263,7 +309,7 @@ class CloudformationStack:
                 FunctionName=event_receiver_lambda_name,
                 Code=Code(
                     S3Bucket=Ref(s3_bucket),
-                    S3Key=f"{S3_DEPLOYMENT_PREFIX}{self.artifact_filename_hashed(event_receiver_zipfile)}",
+                    S3Key=f"{S3_DEPLOYMENT_PREFIX}{self.artifact_filename_hashed(event_receiver_zip_path)}",
                 ),
                 Handler="lambda.lambda_handler",
                 Environment=Environment(
@@ -463,3 +509,19 @@ class CloudformationStack:
                 },
             )
         )
+
+        # collect templates for enabled modules
+        if self.exists:
+            modules = Modules(self.cfg)
+            for module_name, module_infos in modules.enabled().items():
+                echo.enum_elm(f"preparing stack for module '{module_name}'")
+                stack_tpl = module_infos["stack"]["template"]
+
+                for resource in stack_tpl.resources.values():
+                    self.template.add_resource(resource)
+                for output in stack_tpl.outputs.values():
+                    self.template.add_output(output)
+                for parameter in stack_tpl.parameters.values():
+                    self.template.add_parameter(parameter)
+                for name, mapping in stack_tpl.mappings.items():
+                    self.template.add_mapping(name, mapping)

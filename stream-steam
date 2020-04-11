@@ -5,9 +5,10 @@ from webbrowser import open as webbrowser_open
 
 import click
 from cli import colors, echo
-from cli.colors import WARNING
+from cli.colors import ERROR, NEUTRAL, SUCCESS, WARNING
 from cli.config import ConfigManager
 from clients.web_tracking.helper import HTTP_SERVE_ADDRESS, HTTP_SERVE_PORT, create_demo_index_file, serve_demo
+from dateutil import tz
 from engine import VERSION
 from engine.stack import CloudformationStack
 from juniper.cli import build as juniper_build
@@ -29,7 +30,7 @@ def cli():
 @click.command()
 def config():
     # AWS Credentials and region_name
-    echo.h1(f"Configuration of your AWS '{ENV}' env")
+    echo.h1(f"Configuration of you  r AWS '{ENV}' env")
     echo.enum_elm("AWS Access Key", nl=False)
     cfg.set("aws_access_key_id", click.prompt("", default=cfg.get("aws_access_key_id")))
 
@@ -94,14 +95,41 @@ def deploy():
 
 @click.command()
 def describe_deployment():
-    echo.h1("Fetching Stack Infos")
+    echo.h1("Fetching Stack Info")
     cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
-    echo.enum_elm("loading...")
 
+    echo.enum_elm("loading stack outputs...")
     outputs = cf_stack.get_outputs()
+
     echo.h1("Stack infos")
     for output in outputs:
         echo.enum_elm(f"{output['OutputKey']}: {output['OutputValue']}")
+
+
+@click.command()
+def events():
+    echo.h1("Fetching Stack Events")
+    cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+
+    echo.enum_elm("loading latest stack events...")
+    events = cf_stack.get_latest_events()
+
+    echo.h1("Latest Events")
+    for event in events:
+        if event["ResourceStatus"] in ("CREATE_FAILED", "UPDATE_FAILED", "DELETE_FAILED"):
+            dash_color = ERROR
+        elif event["ResourceStatus"] in ("CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS", "DELETE_IN_PROGRESS",):
+            dash_color = NEUTRAL
+        else:
+            dash_color = SUCCESS
+
+        echo.enum_elm(
+            f"{event['Timestamp'].astimezone(tz.tzlocal()).strftime('%Y-%m-%d %H:%m')} | "
+            f"{event['ResourceType']} | "
+            f"{event['ResourceStatus']} | "
+            f"{event.get('ResourceStatusReason', '-')}",
+            dash_color=dash_color,
+        )
 
 
 @cli.group()
@@ -130,6 +158,9 @@ def module_enable(name):
 
     cfg.add_to_list("modules_enabled", name)
     cfg.write()
+    warning = modules[name].get("WARNING")
+    if warning:
+        echo.enum_elm(f"!!! WARNING !!! {warning}", dash_color=WARNING)
     echo.enum_elm("successfully enabled module")
     echo.enum_elm("your modified stack is ready for deployment")
     echo.info("")
@@ -141,7 +172,7 @@ def module_disable(name):
     echo.h1(f"Module '{name}'")
 
     if name not in modules.enabled().keys():
-        echo.error("module is not enabled, therefore it can't be deactivated")
+        echo.error("module is not enabled, therefore it can'template be deactivated")
         exit(2)
 
     echo.enum_elm(
@@ -195,6 +226,7 @@ cli.add_command(deploy)
 cli.add_command(describe_deployment)
 cli.add_command(demo_web_tracking)
 cli.add_command(destroy)
+cli.add_command(events)
 
 
 if __name__ == "__main__":
@@ -203,6 +235,5 @@ if __name__ == "__main__":
     click.secho(r"    / __/ /________ ___ ___ _  / __/ /____ ___ ___ _ ", fg=colors.PRIMARY)
     click.secho("   _\ \/ __/ __/ -_) _ `/  ' \_\ \/ __/ -_) _ `/  ' \\", fg=colors.PRIMARY)
     click.secho(r"  /___/\__/_/  \__/\_,_/_/_/_/___/\__/\__/\_,_/_/_/_/", fg=colors.SECONDARY)
-    click.echo("")
     click.echo("")
     cli()
