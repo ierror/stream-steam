@@ -16,11 +16,30 @@ class ConfigManager:
     def file(self):
         return os.path.join(str(Path.home()), ".stream-steam.cfg")
 
-    def get(self, key):
-        return self._cfg.get(key)
+    def get(self, key, value_type=None):
+        value = self._cfg.get(key)
+        if value_type == set:
+            if value:
+                return set(value.split(","))
+            else:
+                return set()
+        return value
 
     def set(self, key, value):
         self._cfg[key] = value
+
+    def add_to_list(self, key, value):
+        if value:
+            values_set = self.get(key, value_type=set) or set()
+            values_set.add(value)
+            self._cfg[key] = ",".join(values_set)
+        else:
+            self._cfg[key] = ""
+
+    def remove_from_list(self, key, value):
+        values_set = self.get(key, value_type=set) or set()
+        values_set.remove(value)
+        self._cfg[key] = ",".join(values_set)
 
     def read(self):
         cfg = ConfigParser()
