@@ -5,6 +5,7 @@ from pathlib import Path
 
 import botocore
 from boto3.session import Session
+from cached_property import cached_property
 from cli import echo
 from cli.colors import WARNING
 from modules import Modules
@@ -50,13 +51,12 @@ class CloudformationStack:
             aws_access_key_id=cfg.get("aws_access_key_id"),
             aws_secret_access_key=cfg.get("aws_secret_access_key"),
         )
-        self._build_resources()
 
     def error_and_exit(self, msg):
         echo.error(msg)
         exit(1)
 
-    def normalize_resource_name(self, name):
+    def build_resource_name(self, name):
         # e.g. glue-database => stream-steam-dev-glue-database
         if name:
             return f"{self.name}-{name}"
@@ -90,18 +90,25 @@ class CloudformationStack:
                 if self.name == stack["StackName"]:
                     return stack["StackId"]
 
+    @cached_property
+    def modules(self):
+        modules = []
+        for module in Modules(self.cfg).enabled().values():
+            modules.append(module(self))
+        return modules
+
     def deploy(self):
         cf_client = self.boto_session.client("cloudformation")
         api_gateway_client = self.boto_session.client("apigateway")
         s3_client = self.boto_session.client("s3")
         stack_created = False
+        self._build_resources()
 
-        # collect templates for enabled modules
-        modules = Modules(self.cfg)
-        for module_name, module_infos in modules.enabled().items():
-            echo.enum_elm(f"running pre deploy code for module '{module_name}'...")
-            if "pre_deploy" in module_infos:
-                module_infos["pre_deploy"](self.boto_session)
+        # modules pre deploy
+        if self.exists:
+            for module in self.modules:
+                echo.enum_elm(f"running pre deploy code for module {module.id}")
+                module.pre_deploy()
 
         try:
             if not self.exists:
@@ -161,6 +168,11 @@ class CloudformationStack:
                 api_id = self.get_output("APIId")
                 api_gateway_client.create_deployment(restApiId=api_id, stageName=API_DEPLOYMENT_STAGE)
 
+                # modules pre deploy
+                for module in self.modules:
+                    echo.enum_elm(f"running post deploy code for module {module.id}")
+                    module.post_deploy()
+
     @property
     def exists(self):
         return self.stack_id
@@ -186,6 +198,7 @@ class CloudformationStack:
 
     def destroy(self):
         cf_client = self.boto_session.client("cloudformation")
+        self._build_resources()
 
         if self.exists_or_exit():
             # empty bucket - only empty can be deleted afterwards
@@ -195,18 +208,21 @@ class CloudformationStack:
             bucket = s3_resource.Bucket(bucket_name)
             bucket.objects.all().delete()
 
-            # run post deploy code enabled modules
-            modules = Modules(self.cfg)
-            for module_name, module_infos in modules.enabled().items():
-                echo.enum_elm(f"run pre destroy code for module '{module_name}'")
-                if "pre_destroy" in module_infos:
-                    module_infos["pre_destroy"](self.boto_session)
+            # modules pre destroy
+            for module in self.modules:
+                echo.enum_elm(f"running pre destroy code for module {module.id}")
+                module.pre_destroy()
 
             try:
                 cf_client.delete_stack(**{"StackName": self.name})
                 waiter = cf_client.get_waiter("stack_delete_complete")
                 echo.enum_elm("waiting for stack to be destroyed...")
                 waiter.wait(StackName=self.name)
+
+                # modules post deploy
+                for module in self.modules:
+                    echo.enum_elm(f"running post destroy code for module {module.id}")
+                    module.post_destroy()
             except (botocore.exceptions.ClientError, botocore.exceptions.WaiterError) as e:
                 if hasattr(e, "response"):
                     if e.response["Error"]["Message"] == "No updates are to be performed.":
@@ -240,7 +256,7 @@ class CloudformationStack:
         self.template_initial.add_output(s3_bucket_output_res)
 
         # Kinesis Firehose event_in compressor
-        event_compressor_name = self.normalize_resource_name("event-compressor")
+        event_compressor_name = self.build_resource_name("event-compressor")
         event_compressor = DeliveryStream(
             "EventCompressor",
             DeliveryStreamName=event_compressor_name,
@@ -301,7 +317,7 @@ class CloudformationStack:
         )
 
         # Event Receiver Lambda
-        event_receiver_lambda_name = self.normalize_resource_name("event-receiver")
+        event_receiver_lambda_name = self.build_resource_name("event-receiver")
 
         self.template.add_resource(
             Function(
@@ -328,9 +344,7 @@ class CloudformationStack:
         )
 
         # API Gateway
-        api_gateway = self.template.add_resource(
-            RestApi("APIGateway", Name=self.normalize_resource_name("api-gateway"))
-        )
+        api_gateway = self.template.add_resource(RestApi("APIGateway", Name=self.build_resource_name("api-gateway")))
 
         # API Gateway Stage
         api_gateway_deployment = self.template.add_resource(
@@ -510,13 +524,11 @@ class CloudformationStack:
             )
         )
 
-        # collect templates for enabled modules
+        # add templates for enabled modules
         if self.exists:
-            modules = Modules(self.cfg)
-            for module_name, module_infos in modules.enabled().items():
-                echo.enum_elm(f"preparing stack for module '{module_name}'")
-                stack_tpl = module_infos["stack"]["template"]
-
+            for module in self.modules:
+                echo.enum_elm(f"preparing stack for module '{module.id}'")
+                stack_tpl = module.stack
                 for resource in stack_tpl.resources.values():
                     self.template.add_resource(resource)
                 for output in stack_tpl.outputs.values():

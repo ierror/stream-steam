@@ -140,12 +140,12 @@ def module():
 @module.command("list")
 def module_list():
     echo.h1("Enabled Modules")
-    for mod_key, mod_info in modules.enabled().items():
-        echo.enum_elm(f"{mod_key}: {mod_info['DESCRIPTION']}")
+    for module in modules.enabled().values():
+        echo.enum_elm(f"{module.id}: {module.description}")
 
     echo.h1("Disabled Modules")
-    for mod_key, mod_info in modules.disabled().items():
-        echo.enum_elm(f"{mod_key}: {mod_info['DESCRIPTION']}")
+    for module in modules.disabled().values():
+        echo.enum_elm(f"{module.id}: {module.description}", dash_color=ERROR)
 
 
 @module.command("enable")
@@ -158,9 +158,9 @@ def module_enable(name):
 
     cfg.add_to_list("modules_enabled", name)
     cfg.write()
-    warning = modules[name].get("WARNING")
-    if warning:
-        echo.enum_elm(f"!!! WARNING !!! {warning}", dash_color=WARNING)
+    install_warning = modules[name].install_warning
+    if install_warning:
+        echo.enum_elm(f"!!! WARNING !!! {install_warning}", dash_color=WARNING)
     echo.enum_elm("successfully enabled module")
     echo.enum_elm("your modified stack is ready for deployment")
     echo.info("")
@@ -212,8 +212,8 @@ def demo_web_tracking():
     create_demo_index_file(f'{cf_stack.get_output("APIGatewayEndpoint")}/event-receiver/')
 
     # serve the demo
-    echo.info(f"Serving demo at {serve_url}")
-    echo.warning("Quit the server with strg|control-c.")
+    echo.enum_elm(f"serving demo at {serve_url}")
+    echo.enum_elm("quit the server with strg|control-c.")
     serve_demo()
 
     # open browser
