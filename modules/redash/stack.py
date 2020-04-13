@@ -114,11 +114,11 @@ def build(ssh_keypair_name):
         Subnet("Subnet", CidrBlock="10.0.0.0/24", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id))
     )
 
-    internetGateway = template.add_resource(InternetGateway("InternetGateway", Tags=Tags(Application=ref_stack_id)))
-
-    template.add_resource(VPCGatewayAttachment("AttachGateway", VpcId=Ref(vpc), InternetGatewayId=Ref(internetGateway)))
-
-    routeTable = template.add_resource(RouteTable("RouteTable", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id)))
+    internet_gateway = template.add_resource(InternetGateway("InternetGateway", Tags=Tags(Application=ref_stack_id)))
+    template.add_resource(
+        VPCGatewayAttachment("AttachGateway", VpcId=Ref(vpc), InternetGatewayId=Ref(internet_gateway))
+    )
+    route_table = template.add_resource(RouteTable("RouteTable", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id)))
 
     template.add_resource(
         Route(
@@ -126,20 +126,19 @@ def build(ssh_keypair_name):
             DependsOn="AttachGateway",
             GatewayId=Ref("InternetGateway"),
             DestinationCidrBlock="0.0.0.0/0",
-            RouteTableId=Ref(routeTable),
+            RouteTableId=Ref(route_table),
         )
     )
 
     template.add_resource(
-        SubnetRouteTableAssociation("SubnetRouteTableAssociation", SubnetId=Ref(subnet), RouteTableId=Ref(routeTable),)
+        SubnetRouteTableAssociation("SubnetRouteTableAssociation", SubnetId=Ref(subnet), RouteTableId=Ref(route_table),)
     )
 
-    networkAcl = template.add_resource(NetworkAcl("NetworkAcl", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id),))
-
+    network_acl = template.add_resource(NetworkAcl("NetworkAcl", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id),))
     template.add_resource(
         NetworkAclEntry(
             "InboundHTTPNetworkAclEntry",
-            NetworkAclId=Ref(networkAcl),
+            NetworkAclId=Ref(network_acl),
             RuleNumber="100",
             Protocol="6",
             PortRange=PortRange(To="80", From="80"),
@@ -152,7 +151,7 @@ def build(ssh_keypair_name):
     template.add_resource(
         NetworkAclEntry(
             "InboundSSHNetworkAclEntry",
-            NetworkAclId=Ref(networkAcl),
+            NetworkAclId=Ref(network_acl),
             RuleNumber="101",
             Protocol="6",
             PortRange=PortRange(To="22", From="22"),
@@ -165,7 +164,7 @@ def build(ssh_keypair_name):
     template.add_resource(
         NetworkAclEntry(
             "InboundResponsePortsNetworkAclEntry",
-            NetworkAclId=Ref(networkAcl),
+            NetworkAclId=Ref(network_acl),
             RuleNumber="102",
             Protocol="6",
             PortRange=PortRange(To="65535", From="1024"),
@@ -178,7 +177,7 @@ def build(ssh_keypair_name):
     template.add_resource(
         NetworkAclEntry(
             "OutBoundHTTPNetworkAclEntry",
-            NetworkAclId=Ref(networkAcl),
+            NetworkAclId=Ref(network_acl),
             RuleNumber="100",
             Protocol="6",
             PortRange=PortRange(To="80", From="80"),
@@ -191,7 +190,7 @@ def build(ssh_keypair_name):
     template.add_resource(
         NetworkAclEntry(
             "OutBoundHTTPSNetworkAclEntry",
-            NetworkAclId=Ref(networkAcl),
+            NetworkAclId=Ref(network_acl),
             RuleNumber="101",
             Protocol="6",
             PortRange=PortRange(To="443", From="443"),
@@ -204,7 +203,7 @@ def build(ssh_keypair_name):
     template.add_resource(
         NetworkAclEntry(
             "OutBoundResponsePortsNetworkAclEntry",
-            NetworkAclId=Ref(networkAcl),
+            NetworkAclId=Ref(network_acl),
             RuleNumber="102",
             Protocol="6",
             PortRange=PortRange(To="65535", From="1024"),
@@ -215,10 +214,10 @@ def build(ssh_keypair_name):
     )
 
     template.add_resource(
-        SubnetNetworkAclAssociation("SubnetNetworkAclAssociation", SubnetId=Ref(subnet), NetworkAclId=Ref(networkAcl),)
+        SubnetNetworkAclAssociation("SubnetNetworkAclAssociation", SubnetId=Ref(subnet), NetworkAclId=Ref(network_acl),)
     )
 
-    instanceSecurityGroup = template.add_resource(
+    instance_security_group = template.add_resource(
         SecurityGroup(
             "InstanceSecurityGroup",
             GroupDescription="Enable SSH access via port 22",
@@ -238,7 +237,7 @@ def build(ssh_keypair_name):
             KeyName=Ref(keyname_param),
             NetworkInterfaces=[
                 NetworkInterfaceProperty(
-                    GroupSet=[Ref(instanceSecurityGroup)],
+                    GroupSet=[Ref(instance_security_group)],
                     AssociatePublicIpAddress="true",
                     DeviceIndex="0",
                     DeleteOnTermination="true",
@@ -250,5 +249,4 @@ def build(ssh_keypair_name):
     )
 
     template.add_output([Output("RedashServerIP", Value=GetAtt("WebServerInstance", "PublicIp"),)])
-
     return template

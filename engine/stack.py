@@ -24,8 +24,11 @@ from troposphere.apigateway import (
 )
 from troposphere.awslambda import Code, Environment, Function
 from troposphere.firehose import BufferingHints, DeliveryStream, S3DestinationConfiguration
+from troposphere.glue import Column, Database, DatabaseInput, SerdeInfo, StorageDescriptor, Table, TableInput
 from troposphere.iam import Policy, Role
 from troposphere.s3 import Bucket, Private
+
+from .event_receiver import schema as event_schema
 
 API_DEPLOYMENT_STAGE = "v1"
 PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "")
@@ -102,6 +105,7 @@ class CloudformationStack:
         api_gateway_client = self.boto_session.client("apigateway")
         s3_client = self.boto_session.client("s3")
         stack_created = False
+
         self._build_resources()
 
         # modules pre deploy
@@ -198,6 +202,7 @@ class CloudformationStack:
 
     def destroy(self):
         cf_client = self.boto_session.client("cloudformation")
+
         self._build_resources()
 
         if self.exists_or_exit():
@@ -244,7 +249,10 @@ class CloudformationStack:
 
     def _build_resources(self):
         self.template = Template()
+        self.template.set_version("2010-09-09")
+
         self.template_initial = Template()
+        self.template.set_version("2010-09-09")
 
         # S3 Bucket
         s3_bucket_obj = Bucket("S3Bucket", AccessControl=Private)
@@ -521,6 +529,51 @@ class CloudformationStack:
                         }
                     ],
                 },
+            )
+        )
+
+        # Glue Database
+        glue_catalog_id = Ref("AWS::AccountId")
+        glue_database_name = self.build_resource_name("")
+        self.template.add_resource(
+            Database(
+                "GlueDatabase",
+                CatalogId=glue_catalog_id,
+                DatabaseInput=DatabaseInput(
+                    Name=glue_database_name, LocationUri=Join("", ["s3://", Ref(s3_bucket), f"/{S3_TEPM_PREFIX}glue/"]),
+                ),
+            )
+        )
+
+        # build enriched table schema
+        table_schema = []
+        table_fields = []
+        for field, data_type in event_schema.schema_to_glue_schema(event_schema.ENRICHED):
+            table_schema.append(Column(Name=field, Type=data_type))
+            table_fields.append(field)
+
+        # Glue events enriched table
+        self.template.add_resource(
+            Table(
+                "GlueTableEventsEnriched",
+                DatabaseName=glue_database_name,
+                CatalogId=glue_catalog_id,
+                TableInput=TableInput(
+                    Name="events_enriched",
+                    TableType="EXTERNAL_TABLE",
+                    StorageDescriptor=StorageDescriptor(
+                        Columns=table_schema,
+                        InputFormat="org.apache.hadoop.mapred.TextInputFormat",
+                        OutputFormat="org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+                        Location=Join("", ["s3://", Ref(s3_bucket), "/", S3_ENRICHED_PREFIX]),
+                        Compressed=True,
+                        Parameters={"classification": "json", "compressionType": "gzip", "typeOfData": "file"},
+                        SerdeInfo=SerdeInfo(
+                            Parameters={"paths": ",".join(table_fields)},
+                            SerializationLibrary="org.openx.data.jsonserde.JsonSerDe",
+                        ),
+                    ),
+                ),
             )
         )
 

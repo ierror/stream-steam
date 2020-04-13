@@ -4,3 +4,5 @@ functions:
     requirements: ./requirements.txt
     include:
     - ./lambda.py
+    - ./schema.py
+

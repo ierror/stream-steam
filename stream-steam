@@ -4,7 +4,7 @@ import sys
 from webbrowser import open as webbrowser_open
 
 import click
-from cli import colors, echo
+from cli import echo
 from cli.colors import ERROR, NEUTRAL, SUCCESS, WARNING
 from cli.config import ConfigManager
 from clients.web_tracking.helper import HTTP_SERVE_ADDRESS, HTTP_SERVE_PORT, create_demo_index_file, serve_demo
@@ -89,7 +89,9 @@ def deploy():
     echo.enum_elm("deploying...")
     cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
     cf_stack.deploy()
-    echo.enum_elm("your stack is up2date!")
+
+    echo.info("")
+    echo.success("Your stack is up2date now!")
     echo.info("")
 
 
@@ -161,8 +163,10 @@ def module_enable(name):
     install_warning = modules[name].install_warning
     if install_warning:
         echo.enum_elm(f"!!! WARNING !!! {install_warning}", dash_color=WARNING)
-    echo.enum_elm("successfully enabled module")
-    echo.enum_elm("your modified stack is ready for deployment")
+
+    echo.info("")
+    echo.success("Successfully enabled module")
+    echo.info("Your modified stack is ready for deployment")
     echo.info("")
 
 
@@ -183,7 +187,9 @@ def module_disable(name):
     if click.confirm(""):
         cfg.remove_from_list("modules_enabled", name)
         cfg.write()
-        echo.enum_elm("successfully disabled module")
+
+        echo.info("")
+        echo.success("Successfully disabled module")
         echo.info("")
 
 
@@ -199,12 +205,15 @@ def destroy():
         echo.enum_elm("destroying...")
         cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
         cf_stack.destroy()
-        echo.enum_elm("successfully destroyed")
+
+        echo.info("")
+        echo.success("Successfully destroyed stack")
         echo.info("")
 
 
 @click.command()
 def demo_web_tracking():
+    echo.h1("Webtracking Demo")
     serve_url = f"http://{HTTP_SERVE_ADDRESS}:{HTTP_SERVE_PORT}/"
 
     # create index.html
@@ -214,6 +223,7 @@ def demo_web_tracking():
     # serve the demo
     echo.enum_elm(f"serving demo at {serve_url}")
     echo.enum_elm("quit the server with strg|control-c.")
+    echo.info("")
     serve_demo()
 
     # open browser
@@ -231,9 +241,9 @@ cli.add_command(events)
 
 if __name__ == "__main__":
     click.echo("")
-    click.secho(r"     ______                     ______", fg=colors.PRIMARY)
-    click.secho(r"    / __/ /________ ___ ___ _  / __/ /____ ___ ___ _ ", fg=colors.PRIMARY)
-    click.secho("   _\ \/ __/ __/ -_) _ `/  ' \_\ \/ __/ -_) _ `/  ' \\", fg=colors.PRIMARY)
-    click.secho(r"  /___/\__/_/  \__/\_,_/_/_/_/___/\__/\__/\_,_/_/_/_/", fg=colors.SECONDARY)
+    click.secho(r"     ______                     ______", fg="blue")
+    click.secho(r"    / __/ /________ ___ ___ _  / __/ /____ ___ ___ _ ", fg="blue")
+    click.secho("   _\ \/ __/ __/ -_) _ `/  ' \_\ \/ __/ -_) _ `/  ' \\", fg="blue")
+    click.secho(r"  /___/\__/_/  \__/\_,_/_/_/_/___/\__/\__/\_,_/_/_/_/", fg="red")
     click.echo("")
     cli()
