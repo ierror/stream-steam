@@ -2,11 +2,11 @@ TODOs
 -----
 
 # P1
-- root stack action exceptions normalize
 - add prefixes to cf module resource names
 - use child stacks for every module
 - resource tagging, also for modules
 - docu how to use redash (ssh?)
+- show latest stack errors id deployment fails
 - partition athena data?
 - option to mask ips (GDPR) + demo
 - split credentials cfg and stack cfg
@@ -23,3 +23,5 @@ TODOs
 - write parquet files instead of json
 - cleanup deployment 
 - schema_to_glue_schema support for more than 2 levels? 
+- archive incoming events for N days / weeks?
+

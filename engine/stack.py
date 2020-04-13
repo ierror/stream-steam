@@ -100,6 +100,25 @@ class CloudformationStack:
             modules.append(module(self))
         return modules
 
+    def _stack_modify_err_handling(self, exception):
+        if hasattr(exception, "response"):
+            if exception.response["Error"]["Message"] == "No updates are to be performed.":
+                echo.enum_elm("no changes to deploy", dash_color=WARNING)
+            elif "DELETE_IN_PROGRESS" in exception.response["Error"]["Message"]:
+                self.error_and_exit("stack already destroyed. Delete in progress...")
+            elif (
+                "UPDATE_IN_PROGRESS" in exception.response["Error"]["Message"]
+                or "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS" in exception.response["Error"]["Message"]
+                or "CREATE_IN_PROGRESS" in exception.response["Error"]["Message"]
+            ):
+                self.error_and_exit("stack is already updating...")
+            else:
+                raise exception
+        else:
+            self.error_and_exit(
+                "waiter encountered a terminal failure state. Run 'events' command to see latest Events"
+            )
+
     def deploy(self):
         cf_client = self.boto_session.client("cloudformation")
         api_gateway_client = self.boto_session.client("apigateway")
@@ -145,23 +164,7 @@ class CloudformationStack:
             echo.enum_elm(f"waiting for stack to be ready...")
             waiter.wait(StackName=self.name)
         except (botocore.exceptions.ClientError, botocore.exceptions.WaiterError) as e:
-            if hasattr(e, "response"):
-                if e.response["Error"]["Message"] == "No updates are to be performed.":
-                    echo.enum_elm("no changes to deploy", dash_color=WARNING)
-                elif "DELETE_IN_PROGRESS" in e.response["Error"]["Message"]:
-                    self.error_and_exit("stack already destroyed. Delete in progress...")
-                elif (
-                    "UPDATE_IN_PROGRESS" in e.response["Error"]["Message"]
-                    or "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS" in e.response["Error"]["Message"]
-                    or "CREATE_IN_PROGRESS" in e.response["Error"]["Message"]
-                ):
-                    self.error_and_exit("stack is already updating...")
-                else:
-                    raise e
-            else:
-                self.error_and_exit(
-                    "waiter encountered a terminal failure state. Run 'events' command to see latest Events"
-                )
+            self._stack_modify_err_handling(e)
         else:
             if stack_created:
                 # deploy rest
@@ -229,23 +232,7 @@ class CloudformationStack:
                     echo.enum_elm(f"running post destroy code for module {module.id}")
                     module.post_destroy()
             except (botocore.exceptions.ClientError, botocore.exceptions.WaiterError) as e:
-                if hasattr(e, "response"):
-                    if e.response["Error"]["Message"] == "No updates are to be performed.":
-                        echo.enum_elm("no changes to deploy", dash_color=WARNING)
-                    elif "DELETE_IN_PROGRESS" in e.response["Error"]["Message"]:
-                        self.error_and_exit("stack already destroyed. Delete in progress...")
-                    elif (
-                        "UPDATE_IN_PROGRESS" in e.response["Error"]["Message"]
-                        or "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS" in e.response["Error"]["Message"]
-                        or "CREATE_IN_PROGRESS" in e.response["Error"]["Message"]
-                    ):
-                        self.error_and_exit("stack is already updating...")
-                    else:
-                        raise e
-                else:
-                    self.error_and_exit(
-                        "waiter encountered a terminal failure state. Run 'events' command to see latest Events"
-                    )
+                self._stack_modify_err_handling(e)
 
     def _build_resources(self):
         self.template = Template()
