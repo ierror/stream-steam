@@ -144,7 +144,7 @@ def schema_to_flat_json(schema, converted, level=0, level_prev=0, path="", use_g
         field_name = field.name_out or field.name_in
         if level == 0:
             path = field_name
-        elif level_prev is None and path.count(".") > 0:
+        elif level_prev > level:
             path = ".".join(path.split(".")[:-1])
 
         if isinstance(field.type, list):
@@ -155,8 +155,9 @@ def schema_to_flat_json(schema, converted, level=0, level_prev=0, path="", use_g
                     path = f"{path}.{field_name}"
                 else:
                     path = field_name
-            schema_to_flat_json(field.type, converted=converted, level_prev=level_prev, level=level + 1, path=path)
-            level_prev = None
+            level_prev = schema_to_flat_json(
+                field.type, converted=converted, level_prev=level_prev, level=level + 1, path=path
+            )
         else:
             # flat struct
             if use_glue_types:
@@ -180,7 +181,7 @@ def schema_to_flat_json(schema, converted, level=0, level_prev=0, path="", use_g
             else:
                 converted[path].append(f"{field_name}:{data_type}")
 
-            level_prev = level
+    return level
 
 
 # _schema_to_glue_table_struct
@@ -211,6 +212,7 @@ def schema_to_glue_schema(schema):
             nested_struct_str = f"struct<{nested_struct_str}>"
             if "." in key:
                 # e.g. device_info.os => device_info
-                target_key_l1, target_key_l2 = key.split(".")  # TODO make dynamic
+                # TODO make dynamic to support more than two nested levels
+                target_key_l1, target_key_l2 = key.split(".")
                 nested_targets[target_key_l1][target_key_l2] = nested_struct_str
     return schema_glue

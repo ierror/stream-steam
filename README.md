@@ -33,11 +33,11 @@ Deploy it!
     
 Describe your deployment
 
-    ./steam-steam describe-deployment
+    ./stream-steam describe-deployment
     
 Run the Webtracking Demo
 
-    ./steam-steam demo-web-tracking
+    ./stream-steam demo-web-tracking
     
 After 60s you can inspect the enriched events in your S3 Bucket (S3BucketName)
 
@@ -45,6 +45,16 @@ After 60s you can inspect the enriched events in your S3 Bucket (S3BucketName)
     
 Destroy it!
 
-    ./steam-steam destroy
+    ./stream-steam destroy
     
 Whats next?
+
+## Moudules
+
+    ./stream-steam module list
+
+### Redash
+
+    ./stream-steam module enablet
+    
+... TODO
