@@ -18,13 +18,21 @@ from troposphere.ec2 import (
 )
 
 
+def R(name):
+    # adds module name prefix to a Resource
+    # e.g. KeyName => RedashKeyName
+    module_name = __name__.split(".")[1]
+    module_name = module_name.title().replace("_", "")
+    return f"{module_name}{name.title()}"
+
+
 def build(ssh_keypair_name):
     template = Template()
     template.set_version("2010-09-09")
 
     keyname_param = template.add_parameter(
         Parameter(
-            "KeyName",
+            R("KeyName"),
             ConstraintDescription="must be the name of an existing EC2 KeyPair.",
             Description="Name of an existing EC2 KeyPair to enable SSH access to \
     the instance",
@@ -35,7 +43,7 @@ def build(ssh_keypair_name):
 
     sshlocation_param = template.add_parameter(
         Parameter(
-            "SSHLocation",
+            R("SSHLocation"),
             Description=" The IP address range that can be used to SSH to the EC2 \
     instances",
             Type="String",
@@ -49,7 +57,7 @@ def build(ssh_keypair_name):
 
     instanceType_param = template.add_parameter(
         Parameter(
-            "InstanceType",
+            R("InstanceType"),
             Type="String",
             Description="WebServer EC2 instance type",
             Default="t2.small",
@@ -86,7 +94,7 @@ def build(ssh_keypair_name):
     )
 
     template.add_mapping(
-        "AWSRegion2AMI",
+        R("AWSRegion2AMI"),
         {
             "us-east-1": {"image": "ami-0d915a031cabac0e0"},
             "us-east-2": {"image": "ami-0b97435028ca44fcc"},
@@ -108,36 +116,42 @@ def build(ssh_keypair_name):
     )
 
     ref_stack_id = Ref("AWS::StackId")
-    vpc = template.add_resource(VPC("StreamSteamVPC", CidrBlock="10.0.0.0/16", Tags=Tags(Application=ref_stack_id)))
+    vpc = template.add_resource(VPC(R("VPC"), CidrBlock="10.0.0.0/16", Tags=Tags(Application=ref_stack_id)))
 
     subnet = template.add_resource(
-        Subnet("Subnet", CidrBlock="10.0.0.0/24", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id))
+        Subnet(R("Subnet"), CidrBlock="10.0.0.0/24", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id))
     )
 
-    internet_gateway = template.add_resource(InternetGateway("InternetGateway", Tags=Tags(Application=ref_stack_id)))
-    template.add_resource(
-        VPCGatewayAttachment("AttachGateway", VpcId=Ref(vpc), InternetGatewayId=Ref(internet_gateway))
+    internet_gateway = template.add_resource(InternetGateway(R("InternetGateway"), Tags=Tags(Application=ref_stack_id)))
+    attach_gateway = template.add_resource(
+        VPCGatewayAttachment(R("AttachGateway"), VpcId=Ref(vpc), InternetGatewayId=Ref(internet_gateway))
     )
-    route_table = template.add_resource(RouteTable("RouteTable", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id)))
+    route_table = template.add_resource(
+        RouteTable(R("RouteTable"), VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id))
+    )
 
     template.add_resource(
         Route(
-            "Route",
-            DependsOn="AttachGateway",
-            GatewayId=Ref("InternetGateway"),
+            R("Route"),
+            DependsOn=attach_gateway,
+            GatewayId=Ref(internet_gateway),
             DestinationCidrBlock="0.0.0.0/0",
             RouteTableId=Ref(route_table),
         )
     )
 
     template.add_resource(
-        SubnetRouteTableAssociation("SubnetRouteTableAssociation", SubnetId=Ref(subnet), RouteTableId=Ref(route_table),)
+        SubnetRouteTableAssociation(
+            R("SubnetRouteTableAssociation"), SubnetId=Ref(subnet), RouteTableId=Ref(route_table),
+        )
     )
 
-    network_acl = template.add_resource(NetworkAcl("NetworkAcl", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id),))
+    network_acl = template.add_resource(
+        NetworkAcl(R("NetworkAcl"), VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id),)
+    )
     template.add_resource(
         NetworkAclEntry(
-            "InboundHTTPNetworkAclEntry",
+            R("InboundHTTPNetworkAclEntry"),
             NetworkAclId=Ref(network_acl),
             RuleNumber="100",
             Protocol="6",
@@ -150,7 +164,7 @@ def build(ssh_keypair_name):
 
     template.add_resource(
         NetworkAclEntry(
-            "InboundSSHNetworkAclEntry",
+            R("InboundSSHNetworkAclEntry"),
             NetworkAclId=Ref(network_acl),
             RuleNumber="101",
             Protocol="6",
@@ -163,7 +177,7 @@ def build(ssh_keypair_name):
 
     template.add_resource(
         NetworkAclEntry(
-            "InboundResponsePortsNetworkAclEntry",
+            R("InboundResponsePortsNetworkAclEntry"),
             NetworkAclId=Ref(network_acl),
             RuleNumber="102",
             Protocol="6",
@@ -176,7 +190,7 @@ def build(ssh_keypair_name):
 
     template.add_resource(
         NetworkAclEntry(
-            "OutBoundHTTPNetworkAclEntry",
+            R("OutBoundHTTPNetworkAclEntry"),
             NetworkAclId=Ref(network_acl),
             RuleNumber="100",
             Protocol="6",
@@ -189,7 +203,7 @@ def build(ssh_keypair_name):
 
     template.add_resource(
         NetworkAclEntry(
-            "OutBoundHTTPSNetworkAclEntry",
+            R("OutBoundHTTPSNetworkAclEntry"),
             NetworkAclId=Ref(network_acl),
             RuleNumber="101",
             Protocol="6",
@@ -202,7 +216,7 @@ def build(ssh_keypair_name):
 
     template.add_resource(
         NetworkAclEntry(
-            "OutBoundResponsePortsNetworkAclEntry",
+            R("OutBoundResponsePortsNetworkAclEntry"),
             NetworkAclId=Ref(network_acl),
             RuleNumber="102",
             Protocol="6",
@@ -214,12 +228,14 @@ def build(ssh_keypair_name):
     )
 
     template.add_resource(
-        SubnetNetworkAclAssociation("SubnetNetworkAclAssociation", SubnetId=Ref(subnet), NetworkAclId=Ref(network_acl),)
+        SubnetNetworkAclAssociation(
+            R("SubnetNetworkAclAssociation"), SubnetId=Ref(subnet), NetworkAclId=Ref(network_acl),
+        )
     )
 
     instance_security_group = template.add_resource(
         SecurityGroup(
-            "InstanceSecurityGroup",
+            R("InstanceSecurityGroup"),
             GroupDescription="Enable SSH access via port 22",
             SecurityGroupIngress=[
                 SecurityGroupRule(IpProtocol="tcp", FromPort="22", ToPort="22", CidrIp=Ref(sshlocation_param)),
@@ -229,10 +245,10 @@ def build(ssh_keypair_name):
         )
     )
 
-    template.add_resource(
+    server_instance = template.add_resource(
         Instance(
-            "WebServerInstance",
-            ImageId=FindInMap("AWSRegion2AMI", Ref("AWS::Region"), "image"),
+            R("ServerInstance"),
+            ImageId=FindInMap(R("AWSRegion2AMI"), Ref("AWS::Region"), "image"),
             InstanceType=Ref(instanceType_param),
             KeyName=Ref(keyname_param),
             NetworkInterfaces=[
@@ -248,5 +264,5 @@ def build(ssh_keypair_name):
         )
     )
 
-    template.add_output([Output("RedashServerIP", Value=GetAtt("WebServerInstance", "PublicIp"),)])
+    template.add_output([Output(R("ServerIP"), Value=GetAtt(server_instance, "PublicIp"))])
     return template

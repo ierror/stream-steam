@@ -2,7 +2,6 @@ TODOs
 -----
 
 # P1
-- add prefixes to cf module resource names
 - use child stacks for every module
 - resource tagging, also for modules
 - docu how to use redash (ssh?)
