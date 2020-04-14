@@ -2,12 +2,12 @@ from collections import defaultdict, namedtuple
 
 Field = namedtuple("Field", ["name_in", "name_out", "type"])
 
-TIMESTAMP_FIELDS = ["received_datetime"]
+TIMESTAMP_FIELDS = ["event_datetime"]
 
 # _cvar custom variables
 # _rcn Campaign name
 # _rck Campaign Keyword
-#  lang: Accept-Language HTTP
+#  lang: Accept-Language HTTP (already present for ios, check android)
 #  uid user_id (str)
 # cid  visitor ID (str)
 # dimension[0-999] custom dimension
@@ -15,7 +15,7 @@ TIMESTAMP_FIELDS = ["received_datetime"]
 # events from clients
 INCOMING = [
     # see https://developer.matomo.org/api-reference/tracking-api for details
-    Field("idsite", "site_id", int),
+    Field("idsite", "site_id", str),
     Field("r", "random_part", int),
     Field("_idts", "visitor_id_created_ts", int),
     Field("_idvc", "visitor_visit_count", int),
@@ -23,6 +23,8 @@ INCOMING = [
     Field("urlref", "referral_url", str),
     Field("_viewts", "visitor_last_visit_ts", int),
     Field("res", "display_resolutions", str),
+    Field("lang", "language", str),
+    Field("cdt", "event_datetime", str),
     Field("gt_ms", "performance_generation_time_ms", int),
     Field("pv_id", "page_view_id", str),
     Field("url", "page_view_url", str),
@@ -121,7 +123,7 @@ DEVICE_INFO = [
 
 # added while lambda-processing the event
 PROCESSING = [
-    Field("received_datetime", None, str),
+    Field("event_datetime", None, str),
 ]
 
 # final schema for enriched events
@@ -215,4 +217,5 @@ def schema_to_glue_schema(schema):
                 # TODO make dynamic to support more than two nested levels
                 target_key_l1, target_key_l2 = key.split(".")
                 nested_targets[target_key_l1][target_key_l2] = nested_struct_str
+
     return schema_glue

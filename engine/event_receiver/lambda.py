@@ -8,6 +8,7 @@ from uuid import uuid4
 import boto3
 import requests
 import schema
+from dateutil.parser import parse as date_parse
 
 firehose_client = boto3.client("firehose")
 s3_client = boto3.client("s3")
@@ -23,6 +24,7 @@ LOOKUP_CACHE = {
 
 
 def lambda_handler(event_in, context):
+    print(event_in)
     event_out = {
         "id": str(uuid4()),
         "user_agent": event_in["requestContext"]["identity"]["userAgent"],
@@ -36,11 +38,12 @@ def lambda_handler(event_in, context):
         post_data = dict(parse_qsl(urlparse(post_data).query))
 
     # map incoming event_in params to readable ones and cast values - simple sanity checks... ;)
+    query_str_data = event_in.get("queryStringParameters", {}) or {}
     for param in schema.INCOMING:
         if param.name_in in post_data:
             event_out[param.name_out] = post_data[param.name_in]
-        elif "queryStringParameters" in event_in and event_in["queryStringParameters"].get(param.name_in):
-            event_out[param.name_out] = event_in["queryStringParameters"][param.name_in]
+        elif param.name_in in query_str_data:
+            event_out[param.name_out] = query_str_data[param.name_in]
 
         # cast values
         if param.name_out in event_out:
@@ -103,17 +106,34 @@ def lambda_handler(event_in, context):
 
         event_out["geo_info"] = geo_info
 
-    # set received_datetime
-    # use api gw info requestContext.requestTime
-    # e.g. '06/Apr/2020:09:07:05 +0000' => 2020-04-06T10:37:38+00:00
-    # parse
-    event_out["received_datetime"] = datetime.strptime(
-        event_in["requestContext"]["requestTime"], "%d/%b/%Y:%H:%M:%S %z"
-    )
+    # event_datetime handling
+    # 1. try to read from event
+    event_datetime = event_out.get("event_datetime")
+    if event_datetime:
+        if event_datetime.isnumeric():
+            # a) unix timestamp?
+            event_datetime = datetime.fromtimestamp(int(event_datetime))
+        else:
+            # b) try to parse string
+            event_datetime = date_parse(event_datetime)
+    # 2. Fallback if not set, use API Gateway requestTime
+    if event_datetime is None:
+        # use api gw info requestContext.requestTime
+        # e.g. '06/Apr/2020:09:07:05 +0000' => 2020-04-06T10:37:38+00:00
+        # parse
+        event_datetime = datetime.strptime(event_in["requestContext"]["requestTime"], "%d/%b/%Y:%H:%M:%S %z")
+
     # to e.g. 2020-04-07T11:04.01.1586251321
-    event_out["received_datetime"] = (
-        event_out["received_datetime"].astimezone(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S")
+    event_out["event_datetime"] = (
+        event_datetime.astimezone(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S")
     )
+
+    # language handling
+    if not event_out.get("language"):
+        # fallback to HTTP Accept-Language
+        language = event_in.get("headers", {}).get("Accept-Language")
+        if language:
+            event_out["language"] = language
 
     # send event_to firehose
     firehose_client.put_record(
