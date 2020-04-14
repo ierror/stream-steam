@@ -1,0 +1,690 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0047075B99D2B49E6C2B2E7564BF0531 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9337130BD29ADA35874AD2FAB21B451 /* Queue.swift */; };
+		0538C5FE1554E84796663955BA0481D6 /* Dispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCD4806108E1B53E47844E1702D8EE4 /* Dispatcher.swift */; };
+		0695A6A2917254EE0D5B85921AF1C2FC /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = A775B39E4E9A02EE0900ACFC02304EC6 /* Session.swift */; };
+		08A1F18C78461114344EBE4D5319C5DB /* Locale+HttpAcceptLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A1AC6E9D2E1CE223205A9885C832D5 /* Locale+HttpAcceptLanguage.swift */; };
+		1144ABA9611DE012CC36734781216A31 /* URLSessionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C39DA7FF4CA07FCD0978CA7D8CE8D37 /* URLSessionDispatcher.swift */; };
+		2257F5D762647B30B7CD023576C7D052 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD17C9BE1F7DA2012C4CD8816B33446 /* Logger.swift */; };
+		30AAA2B68D6692322BDBB042E036783B /* MatomoTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDC3AE992F37DA6D66E389F81B2FF3DC /* MatomoTracker.swift */; };
+		3DB53F44AC0007818B0BA11D367125D2 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70623E6A43818E22A923D7E082A105E3 /* WebKit.framework */; };
+		41E96D759D0C3C85CEDCCF5F8A9CA254 /* EventAPISerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D154C8D380A11C11EB5B2409F7F8F11 /* EventAPISerializer.swift */; };
+		4E61D233E5C78AE0A0599A2B23260A45 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDDDA8BD51DCE9A9E42657A740BA538A /* Foundation.framework */; };
+		4E92D3889BC63D9532C249B81BF38CFE /* MemoryQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240E8D81D329DC66C8A816C27FA19722 /* MemoryQueue.swift */; };
+		556B2B54DF6BF6F49510107A8FD45F12 /* MainThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13BADFA0BEF2BD93E1FA192318D35845 /* MainThread.swift */; };
+		59055B5231C09C351EC19D776357976D /* MatomoTracker-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 87AAA5940DBFCDFC08012909D185D84A /* MatomoTracker-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8ACAF824138A05A8A461F675E7134AF0 /* CustomVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A651601DDDE082DE468142A893581A95 /* CustomVariable.swift */; };
+		8E40D9D34CFC01D3EFFAA9FD7A35DA09 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2B5FE4F3D285A12C491EE43F290D74 /* Event.swift */; };
+		9717EF7726FA22382FE3053896AB9220 /* MatomoUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C81E9129A937488F03CF9B587C2019 /* MatomoUserDefaults.swift */; };
+		A27597468F146D95DDE82999C366CABA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDDDA8BD51DCE9A9E42657A740BA538A /* Foundation.framework */; };
+		A386F5C479088B5D92E96009BA755DEF /* OrderItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FF299A2D02D8A9C8AB45DF5CF04A9F1 /* OrderItem.swift */; };
+		A7D18B219656AB021D4D264CE828DD81 /* Pods-ios-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 71DDA3959A061C29053682C9C58C002E /* Pods-ios-dummy.m */; };
+		AAFB26F75AAD6A2AE044AFACC20987B6 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DEBFA82263BFA20D91C0131EEBBDBCE /* Application.swift */; };
+		AFCFA622ED87BAD964C51BA723BD859F /* Visitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 902AF668B202C9B371D25C8CE3A0C323 /* Visitor.swift */; };
+		B2D1675B1238182B0EC5B1D25D41DA74 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0C74FEB4F39B098C33CA51FD919FF9 /* Device.swift */; };
+		B3E6D0CBCA15D4EBC5A6661D7DBB7BD7 /* CustomDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0DBCC65FFFEB6943AC7C40FA56370F /* CustomDimension.swift */; };
+		C65A536991C97F74F43EA678A636150B /* MatomoTracker-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = A70109F444795063165AA922C7ABE384 /* MatomoTracker-dummy.m */; };
+		CC0B95B41E795E8AE3069C1F5AAEBDB3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D67DA81A75DBAA54230BA78A263FE61E /* UIKit.framework */; };
+		DDC7D01B40CA54E2D1CEC2708AB9382A /* Pods-ios-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 03AC3EA8D2DCC583822EAB7DFA954E5E /* Pods-ios-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F77ED08F1A1DAB46331870FEEFD5ABD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 291555773E81388632F8F7E784290E53;
+			remoteInfo = MatomoTracker;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		03AC3EA8D2DCC583822EAB7DFA954E5E /* Pods-ios-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-ios-umbrella.h"; sourceTree = "<group>"; };
+		0DF03F42218D09D4B3213FEC18FFB7EA /* Pods-ios-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-ios-acknowledgements.markdown"; sourceTree = "<group>"; };
+		13BADFA0BEF2BD93E1FA192318D35845 /* MainThread.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MainThread.swift; path = MatomoTracker/MainThread.swift; sourceTree = "<group>"; };
+		1F0DBCC65FFFEB6943AC7C40FA56370F /* CustomDimension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomDimension.swift; path = MatomoTracker/CustomDimension.swift; sourceTree = "<group>"; };
+		240E8D81D329DC66C8A816C27FA19722 /* MemoryQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MemoryQueue.swift; path = MatomoTracker/MemoryQueue.swift; sourceTree = "<group>"; };
+		2A2B5FE4F3D285A12C491EE43F290D74 /* Event.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Event.swift; path = MatomoTracker/Event.swift; sourceTree = "<group>"; };
+		2C39DA7FF4CA07FCD0978CA7D8CE8D37 /* URLSessionDispatcher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URLSessionDispatcher.swift; path = MatomoTracker/URLSessionDispatcher.swift; sourceTree = "<group>"; };
+		2D154C8D380A11C11EB5B2409F7F8F11 /* EventAPISerializer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EventAPISerializer.swift; path = MatomoTracker/EventAPISerializer.swift; sourceTree = "<group>"; };
+		2DD17C9BE1F7DA2012C4CD8816B33446 /* Logger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Logger.swift; path = MatomoTracker/Logger.swift; sourceTree = "<group>"; };
+		30A9102406CC2287EB7D5FA90669C209 /* MatomoTracker-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MatomoTracker-prefix.pch"; sourceTree = "<group>"; };
+		4279DF1C1C9F30844D531F8B78033BB2 /* MatomoTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = MatomoTracker.framework; path = MatomoTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		453AFDC5BBA6930663D2F613314EAC97 /* Pods-ios.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-ios.debug.xcconfig"; sourceTree = "<group>"; };
+		5118E220B73F8EB37F2FCB653BF03270 /* MatomoTracker.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = MatomoTracker.modulemap; sourceTree = "<group>"; };
+		57C81E9129A937488F03CF9B587C2019 /* MatomoUserDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MatomoUserDefaults.swift; path = MatomoTracker/MatomoUserDefaults.swift; sourceTree = "<group>"; };
+		70623E6A43818E22A923D7E082A105E3 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		71DDA3959A061C29053682C9C58C002E /* Pods-ios-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-ios-dummy.m"; sourceTree = "<group>"; };
+		792D816C58E2D38F707C7A8384132367 /* Pods-ios-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-ios-acknowledgements.plist"; sourceTree = "<group>"; };
+		7DEBFA82263BFA20D91C0131EEBBDBCE /* Application.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Application.swift; path = MatomoTracker/Application.swift; sourceTree = "<group>"; };
+		87AAA5940DBFCDFC08012909D185D84A /* MatomoTracker-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MatomoTracker-umbrella.h"; sourceTree = "<group>"; };
+		8FF299A2D02D8A9C8AB45DF5CF04A9F1 /* OrderItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OrderItem.swift; path = MatomoTracker/OrderItem.swift; sourceTree = "<group>"; };
+		902AF668B202C9B371D25C8CE3A0C323 /* Visitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Visitor.swift; path = MatomoTracker/Visitor.swift; sourceTree = "<group>"; };
+		9CD0C3A91269148968FE7E089A2BC020 /* Pods-ios.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-ios.modulemap"; sourceTree = "<group>"; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		A651601DDDE082DE468142A893581A95 /* CustomVariable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomVariable.swift; path = MatomoTracker/CustomVariable.swift; sourceTree = "<group>"; };
+		A70109F444795063165AA922C7ABE384 /* MatomoTracker-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "MatomoTracker-dummy.m"; sourceTree = "<group>"; };
+		A775B39E4E9A02EE0900ACFC02304EC6 /* Session.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Session.swift; path = MatomoTracker/Session.swift; sourceTree = "<group>"; };
+		B175E507B7F0B394F91C5D7283C2034E /* Pods-ios-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-ios-frameworks.sh"; sourceTree = "<group>"; };
+		B23152931E2432FC3B961DE87ED52D8B /* Pods-ios-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-ios-Info.plist"; sourceTree = "<group>"; };
+		CE6A0A5E032A46689E5814E49983A6D4 /* MatomoTracker-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "MatomoTracker-Info.plist"; sourceTree = "<group>"; };
+		D494B4777ED0E8BAE4F5246D54341E26 /* Pods-ios.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-ios.release.xcconfig"; sourceTree = "<group>"; };
+		D67DA81A75DBAA54230BA78A263FE61E /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		DB84425C5097649DB7039BCDFCA4DB6C /* Pods_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_ios.framework; path = "Pods-ios.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD0C74FEB4F39B098C33CA51FD919FF9 /* Device.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Device.swift; path = MatomoTracker/Device.swift; sourceTree = "<group>"; };
+		DDC3AE992F37DA6D66E389F81B2FF3DC /* MatomoTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MatomoTracker.swift; path = MatomoTracker/MatomoTracker.swift; sourceTree = "<group>"; };
+		DDDDA8BD51DCE9A9E42657A740BA538A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		E8A1AC6E9D2E1CE223205A9885C832D5 /* Locale+HttpAcceptLanguage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Locale+HttpAcceptLanguage.swift"; path = "MatomoTracker/Locale+HttpAcceptLanguage.swift"; sourceTree = "<group>"; };
+		E9337130BD29ADA35874AD2FAB21B451 /* Queue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Queue.swift; path = MatomoTracker/Queue.swift; sourceTree = "<group>"; };
+		F7D8E94ABF71FC6689B1A5AD42F1507A /* MatomoTracker.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MatomoTracker.xcconfig; sourceTree = "<group>"; };
+		FBCD4806108E1B53E47844E1702D8EE4 /* Dispatcher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Dispatcher.swift; path = MatomoTracker/Dispatcher.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2E59BD0B21E2F8EA64CF9B7465D27C34 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A27597468F146D95DDE82999C366CABA /* Foundation.framework in Frameworks */,
+				CC0B95B41E795E8AE3069C1F5AAEBDB3 /* UIKit.framework in Frameworks */,
+				3DB53F44AC0007818B0BA11D367125D2 /* WebKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B797CA924F38BF4EB77129E851282D8B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E61D233E5C78AE0A0599A2B23260A45 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		01E51FDDCE74CEFD3C6FB4939A0E62F1 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				DDDDA8BD51DCE9A9E42657A740BA538A /* Foundation.framework */,
+				D67DA81A75DBAA54230BA78A263FE61E /* UIKit.framework */,
+				70623E6A43818E22A923D7E082A105E3 /* WebKit.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		03C5C200A0787E300053CFA8F53CA094 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				01E51FDDCE74CEFD3C6FB4939A0E62F1 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		1B0C5D69DAC4AF6A7C65B7B52A393D30 /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				DE4C63E813FCB55087BF00E537F8AE97 /* Pods-ios */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+		34C9438611B763B144FBBBC471AFBFCF /* MatomoTracker */ = {
+			isa = PBXGroup;
+			children = (
+				FBB980ADC6CAF8039F13D9F15F7631BF /* Core */,
+				3C4CB8C8076F70A5F8594FDF2F135701 /* Support Files */,
+			);
+			name = MatomoTracker;
+			path = MatomoTracker;
+			sourceTree = "<group>";
+		};
+		3C4CB8C8076F70A5F8594FDF2F135701 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				5118E220B73F8EB37F2FCB653BF03270 /* MatomoTracker.modulemap */,
+				F7D8E94ABF71FC6689B1A5AD42F1507A /* MatomoTracker.xcconfig */,
+				A70109F444795063165AA922C7ABE384 /* MatomoTracker-dummy.m */,
+				CE6A0A5E032A46689E5814E49983A6D4 /* MatomoTracker-Info.plist */,
+				30A9102406CC2287EB7D5FA90669C209 /* MatomoTracker-prefix.pch */,
+				87AAA5940DBFCDFC08012909D185D84A /* MatomoTracker-umbrella.h */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/MatomoTracker";
+			sourceTree = "<group>";
+		};
+		499320B66B3E792848DD395FF1E6896D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4279DF1C1C9F30844D531F8B78033BB2 /* MatomoTracker.framework */,
+				DB84425C5097649DB7039BCDFCA4DB6C /* Pods_ios.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7FF5B066C3F1121AB26C0676B428788C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				34C9438611B763B144FBBBC471AFBFCF /* MatomoTracker */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		CF1408CF629C7361332E53B88F7BD30C = {
+			isa = PBXGroup;
+			children = (
+				9D940727FF8FB9C785EB98E56350EF41 /* Podfile */,
+				03C5C200A0787E300053CFA8F53CA094 /* Frameworks */,
+				7FF5B066C3F1121AB26C0676B428788C /* Pods */,
+				499320B66B3E792848DD395FF1E6896D /* Products */,
+				1B0C5D69DAC4AF6A7C65B7B52A393D30 /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		DE4C63E813FCB55087BF00E537F8AE97 /* Pods-ios */ = {
+			isa = PBXGroup;
+			children = (
+				9CD0C3A91269148968FE7E089A2BC020 /* Pods-ios.modulemap */,
+				0DF03F42218D09D4B3213FEC18FFB7EA /* Pods-ios-acknowledgements.markdown */,
+				792D816C58E2D38F707C7A8384132367 /* Pods-ios-acknowledgements.plist */,
+				71DDA3959A061C29053682C9C58C002E /* Pods-ios-dummy.m */,
+				B175E507B7F0B394F91C5D7283C2034E /* Pods-ios-frameworks.sh */,
+				B23152931E2432FC3B961DE87ED52D8B /* Pods-ios-Info.plist */,
+				03AC3EA8D2DCC583822EAB7DFA954E5E /* Pods-ios-umbrella.h */,
+				453AFDC5BBA6930663D2F613314EAC97 /* Pods-ios.debug.xcconfig */,
+				D494B4777ED0E8BAE4F5246D54341E26 /* Pods-ios.release.xcconfig */,
+			);
+			name = "Pods-ios";
+			path = "Target Support Files/Pods-ios";
+			sourceTree = "<group>";
+		};
+		FBB980ADC6CAF8039F13D9F15F7631BF /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				7DEBFA82263BFA20D91C0131EEBBDBCE /* Application.swift */,
+				1F0DBCC65FFFEB6943AC7C40FA56370F /* CustomDimension.swift */,
+				A651601DDDE082DE468142A893581A95 /* CustomVariable.swift */,
+				DD0C74FEB4F39B098C33CA51FD919FF9 /* Device.swift */,
+				FBCD4806108E1B53E47844E1702D8EE4 /* Dispatcher.swift */,
+				2A2B5FE4F3D285A12C491EE43F290D74 /* Event.swift */,
+				2D154C8D380A11C11EB5B2409F7F8F11 /* EventAPISerializer.swift */,
+				E8A1AC6E9D2E1CE223205A9885C832D5 /* Locale+HttpAcceptLanguage.swift */,
+				2DD17C9BE1F7DA2012C4CD8816B33446 /* Logger.swift */,
+				13BADFA0BEF2BD93E1FA192318D35845 /* MainThread.swift */,
+				DDC3AE992F37DA6D66E389F81B2FF3DC /* MatomoTracker.swift */,
+				57C81E9129A937488F03CF9B587C2019 /* MatomoUserDefaults.swift */,
+				240E8D81D329DC66C8A816C27FA19722 /* MemoryQueue.swift */,
+				8FF299A2D02D8A9C8AB45DF5CF04A9F1 /* OrderItem.swift */,
+				E9337130BD29ADA35874AD2FAB21B451 /* Queue.swift */,
+				A775B39E4E9A02EE0900ACFC02304EC6 /* Session.swift */,
+				2C39DA7FF4CA07FCD0978CA7D8CE8D37 /* URLSessionDispatcher.swift */,
+				902AF668B202C9B371D25C8CE3A0C323 /* Visitor.swift */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		4E3F147F4A2018FD7995E53ADEACB478 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				59055B5231C09C351EC19D776357976D /* MatomoTracker-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C45F0180BFF9EAFBFD8F49A4AC7D0687 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DDC7D01B40CA54E2D1CEC2708AB9382A /* Pods-ios-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		291555773E81388632F8F7E784290E53 /* MatomoTracker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3A07DD21525418D59C942DF1BBA65080 /* Build configuration list for PBXNativeTarget "MatomoTracker" */;
+			buildPhases = (
+				4E3F147F4A2018FD7995E53ADEACB478 /* Headers */,
+				B57DFB7B1E7D44916FCE7AA7A665DF44 /* Sources */,
+				2E59BD0B21E2F8EA64CF9B7465D27C34 /* Frameworks */,
+				14C4359A371883A825D4E540621D6FC4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MatomoTracker;
+			productName = MatomoTracker;
+			productReference = 4279DF1C1C9F30844D531F8B78033BB2 /* MatomoTracker.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		CB5AA7A4FA94F4765AE579D6F4491956 /* Pods-ios */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 186BE0C9727D86CADFC62C12CA17CCBF /* Build configuration list for PBXNativeTarget "Pods-ios" */;
+			buildPhases = (
+				C45F0180BFF9EAFBFD8F49A4AC7D0687 /* Headers */,
+				43B9F0623870C10FF86BFF52C4E971D9 /* Sources */,
+				B797CA924F38BF4EB77129E851282D8B /* Frameworks */,
+				391C7D526827B3F48F840F0BAB0CFD59 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F6DBE91AC8D105CDA95E8BE9BABAC57D /* PBXTargetDependency */,
+			);
+			name = "Pods-ios";
+			productName = "Pods-ios";
+			productReference = DB84425C5097649DB7039BCDFCA4DB6C /* Pods_ios.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BFDFE7DC352907FC980B868725387E98 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1100;
+				LastUpgradeCheck = 1100;
+			};
+			buildConfigurationList = 4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
+			productRefGroup = 499320B66B3E792848DD395FF1E6896D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				291555773E81388632F8F7E784290E53 /* MatomoTracker */,
+				CB5AA7A4FA94F4765AE579D6F4491956 /* Pods-ios */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		14C4359A371883A825D4E540621D6FC4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		391C7D526827B3F48F840F0BAB0CFD59 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		43B9F0623870C10FF86BFF52C4E971D9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7D18B219656AB021D4D264CE828DD81 /* Pods-ios-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B57DFB7B1E7D44916FCE7AA7A665DF44 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AAFB26F75AAD6A2AE044AFACC20987B6 /* Application.swift in Sources */,
+				B3E6D0CBCA15D4EBC5A6661D7DBB7BD7 /* CustomDimension.swift in Sources */,
+				8ACAF824138A05A8A461F675E7134AF0 /* CustomVariable.swift in Sources */,
+				B2D1675B1238182B0EC5B1D25D41DA74 /* Device.swift in Sources */,
+				0538C5FE1554E84796663955BA0481D6 /* Dispatcher.swift in Sources */,
+				8E40D9D34CFC01D3EFFAA9FD7A35DA09 /* Event.swift in Sources */,
+				41E96D759D0C3C85CEDCCF5F8A9CA254 /* EventAPISerializer.swift in Sources */,
+				08A1F18C78461114344EBE4D5319C5DB /* Locale+HttpAcceptLanguage.swift in Sources */,
+				2257F5D762647B30B7CD023576C7D052 /* Logger.swift in Sources */,
+				556B2B54DF6BF6F49510107A8FD45F12 /* MainThread.swift in Sources */,
+				C65A536991C97F74F43EA678A636150B /* MatomoTracker-dummy.m in Sources */,
+				30AAA2B68D6692322BDBB042E036783B /* MatomoTracker.swift in Sources */,
+				9717EF7726FA22382FE3053896AB9220 /* MatomoUserDefaults.swift in Sources */,
+				4E92D3889BC63D9532C249B81BF38CFE /* MemoryQueue.swift in Sources */,
+				A386F5C479088B5D92E96009BA755DEF /* OrderItem.swift in Sources */,
+				0047075B99D2B49E6C2B2E7564BF0531 /* Queue.swift in Sources */,
+				0695A6A2917254EE0D5B85921AF1C2FC /* Session.swift in Sources */,
+				1144ABA9611DE012CC36734781216A31 /* URLSessionDispatcher.swift in Sources */,
+				AFCFA622ED87BAD964C51BA723BD859F /* Visitor.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F6DBE91AC8D105CDA95E8BE9BABAC57D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MatomoTracker;
+			target = 291555773E81388632F8F7E784290E53 /* MatomoTracker */;
+			targetProxy = F77ED08F1A1DAB46331870FEEFD5ABD4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2805ABA78F2F14D892C93711B3FF8C66 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F7D8E94ABF71FC6689B1A5AD42F1507A /* MatomoTracker.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/MatomoTracker/MatomoTracker-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/MatomoTracker/MatomoTracker-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/MatomoTracker/MatomoTracker.modulemap";
+				PRODUCT_MODULE_NAME = MatomoTracker;
+				PRODUCT_NAME = MatomoTracker;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		7F49F7A79491D596C32D0D8C2CC976C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D494B4777ED0E8BAE4F5246D54341E26 /* Pods-ios.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-ios/Pods-ios-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-ios/Pods-ios.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		939F1A8F6BCEB7F9F64D9EEE50CAE014 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Debug;
+		};
+		9E9BFE5ADE08F78A79088CED623EB468 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F7D8E94ABF71FC6689B1A5AD42F1507A /* MatomoTracker.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/MatomoTracker/MatomoTracker-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/MatomoTracker/MatomoTracker-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/MatomoTracker/MatomoTracker.modulemap";
+				PRODUCT_MODULE_NAME = MatomoTracker;
+				PRODUCT_NAME = MatomoTracker;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		C3AC6A429ACEF674F7784F074470E860 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 453AFDC5BBA6930663D2F613314EAC97 /* Pods-ios.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-ios/Pods-ios-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-ios/Pods-ios.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		ECB437504DF805BD96CAABF97400B526 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		186BE0C9727D86CADFC62C12CA17CCBF /* Build configuration list for PBXNativeTarget "Pods-ios" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C3AC6A429ACEF674F7784F074470E860 /* Debug */,
+				7F49F7A79491D596C32D0D8C2CC976C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3A07DD21525418D59C942DF1BBA65080 /* Build configuration list for PBXNativeTarget "MatomoTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2805ABA78F2F14D892C93711B3FF8C66 /* Debug */,
+				9E9BFE5ADE08F78A79088CED623EB468 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				939F1A8F6BCEB7F9F64D9EEE50CAE014 /* Debug */,
+				ECB437504DF805BD96CAABF97400B526 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+}

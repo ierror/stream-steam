@@ -19,3 +19,4 @@ sdist/
 .project
 /tmp/
 /clients/web_tracking/index.html
+/clients/ios/ios/Info.plist

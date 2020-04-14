@@ -9,7 +9,7 @@
 <!-- StreamSteam -->
 <script type="text/javascript">
   var $TRACKING_SERVER_URL = '{{ tracking_server_url }}';
-  var $SITE_ID = 1;
+  var $SITE_ID = "dev.web";
 
   var _paq = window._paq || [];
   _paq.push(['trackPageView']);
@@ -31,8 +31,8 @@
 
 <h2>Event Tracking Examples</h2>
 
-<button onclick="_paq.push(['trackEvent', 'Documentary', 'Rating', 'Thrive', 1.0]);">Rate 1.0</button>
-<button onclick="_paq.push(['trackEvent', 'Documentary', 'Rating', 'Thrive', 9.5]);">Rate 9.5</button>
+<button onclick="_paq.push(['trackEvent', 'player', 'slide', 'volume', 1.0]);">Set Volume to 1.0</button>
+<button onclick="_paq.push(['trackEvent', 'player', 'slide', 'volume', 9.5]);">Set volume to  9.5</button>
 
 </body>
 

@@ -2,27 +2,28 @@ import http.server
 import os
 import socketserver
 import threading
+from pathlib import Path
 
 import jinja2
 
 HTTP_SERVE_ADDRESS = "127.0.0.1"
 HTTP_SERVE_PORT = 1234
-TPL_DIR = os.path.abspath(os.path.dirname(__file__))
+APP_MAIN_PATH = Path(__file__).parent
 
 
 def create_demo_index_file(tracking_server_url):
-    tpl_loader = jinja2.FileSystemLoader(searchpath=TPL_DIR)
+    tpl_loader = jinja2.FileSystemLoader(searchpath=APP_MAIN_PATH.absolute())
     tpl_env = jinja2.Environment(loader=tpl_loader)
     tpl = tpl_env.get_template("index_tpl.html")
     html = tpl.render(tracking_server_url=tracking_server_url)
-    index_file = os.path.join(TPL_DIR, "index.html")
-    with open(index_file, "w") as fh:
+    index_file = Path(APP_MAIN_PATH, "index.html")
+    with index_file.open("w") as fh:
         fh.write(html)
     return index_file
 
 
 def serve_demo():
-    os.chdir(TPL_DIR)
+    os.chdir(APP_MAIN_PATH)
     handler = http.server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer((HTTP_SERVE_ADDRESS, HTTP_SERVE_PORT), handler)
     threading.Thread(target=httpd.serve_forever).start()

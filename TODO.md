@@ -2,20 +2,22 @@ TODOs
 -----
 
 # P1
+- mv client cli demo logic to clients packages
 - use child stacks for every module
 - resource tagging, also for modules
 - docu how to use redash (ssh?)
 - show latest stack errors id deployment fails
-- partition athena data?
 - option to mask ips (GDPR) + demo
 - split credentials cfg and stack cfg
 - backend event example 
-- ios example
 - android example
+- clients docu
 - integrate matomo missing params, and e-commerce params
+- partition athena data?
+- cloudwatch alerting / monitoring
+- cloudwatch expire logs
 
 # P2
-- cloudwatch alerting / monitoring
 - ipv6 support (api gw, redash, ip masking)
 - custom domain for API GW
 - API GW configurable: UsagePlan, ThrottleSettings, QuotaSettings?
