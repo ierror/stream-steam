@@ -3,7 +3,7 @@ StreamSteam
 
 Scalable and Hackable Analytics for AWS
 
-> Installed and configured in minutes, yet expandable and scalable  
+> Installed and configured in minutes, yet extensible and scalable  
 
 ## Installation and Setup
 
