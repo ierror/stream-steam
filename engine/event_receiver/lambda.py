@@ -3,7 +3,6 @@ import os
 from collections import defaultdict
 from datetime import datetime, timezone
 from urllib.parse import parse_qsl, urlparse
-from uuid import uuid4
 
 import boto3
 import requests
@@ -26,7 +25,6 @@ LOOKUP_CACHE = {
 def lambda_handler(event_in, context):
     print(event_in)
     event_out = {
-        "id": str(uuid4()),
         "user_agent": event_in["requestContext"]["identity"]["userAgent"],
         "ip": event_in["requestContext"]["identity"]["sourceIp"],
     }
@@ -124,6 +122,7 @@ def lambda_handler(event_in, context):
         event_datetime = datetime.strptime(event_in["requestContext"]["requestTime"], "%d/%b/%Y:%H:%M:%S %z")
 
     # to e.g. 2020-04-07T11:04.01.1586251321
+    event_datetime = event_datetime.astimezone(timezone.utc).replace(tzinfo=None)
     event_out["event_datetime"] = (
         event_datetime.astimezone(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S")
     )

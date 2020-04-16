@@ -521,7 +521,7 @@ class CloudformationStack:
 
         # Glue Database
         glue_catalog_id = Ref("AWS::AccountId")
-        glue_database_name = self.build_resource_name("")
+        glue_database_name = self.build_resource_name("").replace("-", "_")
         self.template.add_resource(
             Database(
                 "GlueDatabase",
