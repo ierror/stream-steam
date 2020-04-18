@@ -2,7 +2,6 @@ TODOs
 -----
 
 # P1
-- mv client cli demo logic to clients packages
 - use child stacks for every module
 - resource tagging, also for modules
 - docu how to use redash (ssh?)

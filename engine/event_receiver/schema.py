@@ -2,6 +2,8 @@ from collections import defaultdict, namedtuple
 
 Field = namedtuple("Field", ["name_in", "name_out", "type"])
 
+TIMESTAMP_FIELDS = ["event_datetime"]
+
 # _cvar custom variables
 # _rcn Campaign name
 # _rck Campaign Keyword
@@ -128,8 +130,6 @@ PROCESSING = [
 
 # final schema for enriched events
 ENRICHED = INCOMING + PROCESSING + GEO_INFO + DEVICE_INFO
-
-TIMESTAMP_FIELDS = ["event_datetime"]
 
 
 def schema_to_flat_json(schema, converted, level=0, level_prev=0, path="", use_glue_types=True):

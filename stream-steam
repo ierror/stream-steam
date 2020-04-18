@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 import os
-import platform
-import subprocess
 import sys
-from webbrowser import open as webbrowser_open
 
 import click
 from cli import echo
 from cli.colors import ERROR, NEUTRAL, SUCCESS, WARNING
 from cli.config import ConfigManager
-from clients.ios.helper import create_info_plist_file
-from clients.web.helper import HTTP_SERVE_ADDRESS, HTTP_SERVE_PORT, create_demo_index_file, serve_demo
+from clients.ios.cli import demo_tracking_ios
+from clients.web.cli import demo_tracking_web
 from dateutil import tz
 from engine import VERSION
 from engine.stack import CloudformationStack
@@ -214,49 +211,12 @@ def destroy():
         echo.info("")
 
 
-@click.command()
-def demo_tracking_web():
-    echo.h1("Web Tracking Demo")
-    serve_url = f"http://{HTTP_SERVE_ADDRESS}:{HTTP_SERVE_PORT}/"
-
-    # create index.html
-    cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
-    create_demo_index_file(f'{cf_stack.get_output("APIGatewayEndpoint")}/event-receiver/')
-
-    # serve the demo
-    echo.enum_elm(f"serving demo at {serve_url}")
-    echo.enum_elm("quit the server with <strg|control>-c.")
-    echo.info("")
-    serve_demo()
-
-    # open browser
-    webbrowser_open(serve_url)
-
-
-@click.command()
-def demo_tracking_ios():
-    echo.h1("iOS Tracking Demo")
-
-    if platform.system() == "Darwin":
-        # create Info.plist with valid tracking URL
-        cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
-        plist_path = create_info_plist_file(f'{cf_stack.get_output("APIGatewayEndpoint")}/matomo.php')
-
-        # open xCode
-        echo.enum_elm("starting Xcode...")
-        workspace = plist_path.parent.parent.joinpath("ios.xcworkspace")
-        subprocess.call(f"open {workspace.absolute()}", shell=True)
-        echo.enum_elm("start the Simulator to run the demo")
-    else:
-        echo.error("iOS demo only available on MacOS")
-
-
 cli.add_command(config)
 cli.add_command(build)
 cli.add_command(deploy)
 cli.add_command(describe_deployment)
-cli.add_command(demo_tracking_web)
-cli.add_command(demo_tracking_ios)
+cli.add_command(demo_tracking_web(CF_STACK_NAME, cfg))
+cli.add_command(demo_tracking_ios(CF_STACK_NAME, cfg))
 cli.add_command(destroy)
 cli.add_command(events)
 
