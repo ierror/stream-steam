@@ -542,7 +542,7 @@ class CloudformationStack:
         # Glue Database
         glue_catalog_id = Ref("AWS::AccountId")
         glue_database_name = self.build_resource_name("").replace("-", "_")
-        self.template.add_resource(
+        glue_database = self.template.add_resource(
             Database(
                 "GlueDatabase",
                 CatalogId=glue_catalog_id,
@@ -563,7 +563,7 @@ class CloudformationStack:
         self.template.add_resource(
             Table(
                 "GlueTableEventsEnriched",
-                DatabaseName=glue_database_name,
+                DatabaseName=Ref(glue_database),
                 CatalogId=glue_catalog_id,
                 TableInput=TableInput(
                     Name="events_enriched",

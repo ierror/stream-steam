@@ -55,6 +55,6 @@ Whats next?
 
 ### Redash
 
-    ./stream-steam module enablet
+    ./stream-steam module enable --name redash
     
 ... TODO

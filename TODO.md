@@ -14,6 +14,7 @@ TODOs
 - partition athena data?
 - cloudwatch alerting / monitoring
 - cloudwatch expire logs
+- matomo License and copyright notice 
 
 # P2
 - ipv6 support (api gw, redash, ip masking)
