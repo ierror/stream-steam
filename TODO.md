@@ -2,10 +2,9 @@ TODOs
 -----
 
 # P1
-- use child stacks for every module
 - resource tagging, also for modules
 - docu how to use redash (ssh?)
-- show latest stack errors id deployment fails
+- show latest stack errors if deployment fails
 - option to mask ips (GDPR) + demo
 - split credentials cfg and stack cfg
 - backend event example 
@@ -21,7 +20,7 @@ TODOs
 - custom domain for API GW
 - API GW configurable: UsagePlan, ThrottleSettings, QuotaSettings?
 - write parquet files instead of json
-- cleanup deployment 
+- cleanup deployment artifacts
 - schema_to_glue_schema support for more than 2 levels? 
 - archive incoming events for N days / weeks?
 

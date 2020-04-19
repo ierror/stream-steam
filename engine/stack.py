@@ -1,7 +1,9 @@
 import hashlib
+import io
 import os
 import re
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import botocore
 from boto3.session import Session
@@ -23,6 +25,7 @@ from troposphere.apigateway import (
     UsagePlan,
 )
 from troposphere.awslambda import Code, Environment, Function
+from troposphere.cloudformation import Stack
 from troposphere.firehose import BufferingHints, DeliveryStream, S3DestinationConfiguration
 from troposphere.glue import Column, Database, DatabaseInput, SerdeInfo, StorageDescriptor, Table, TableInput
 from troposphere.iam import Policy, Role
@@ -72,7 +75,7 @@ class CloudformationStack:
         :return: ./foo/event_receiver-<hash>.zip
         """
         hash_md5 = hashlib.md5()
-        with open(artifact_file, "rb") as f:
+        with io.open(artifact_file, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_md5.update(chunk)
         artifact_file = os.path.basename(artifact_file)
@@ -192,8 +195,25 @@ class CloudformationStack:
     def get_outputs(self):
         if self.exists_or_exit():
             cf_client = self.boto_session.client("cloudformation")
+            outputs = []
+
+            # 1. collect root stack outputs
             stack_result = cf_client.describe_stacks(StackName=self.name)
-            return stack_result["Stacks"][0]["Outputs"]
+            outputs += stack_result["Stacks"][0]["Outputs"]
+
+            # 2. module stacks outputs
+            cloudformation_client = self.boto_session.client("cloudformation")
+            paginator = cloudformation_client.get_paginator("describe_stacks")
+            page_iterator = paginator.paginate()
+            for module_stack_batch in page_iterator:
+                modules_stack_batch = module_stack_batch["Stacks"]
+                for module_stack in modules_stack_batch:
+                    if module_stack.get("ParentId") == self.stack_id:
+                        if module_stack["StackStatus"] == "DELETE_COMPLETE":
+                            continue
+                        outputs += module_stack["Outputs"]
+
+            return outputs
 
     def get_output(self, output_key):
         return [o for o in self.get_outputs() if o["OutputKey"] == output_key][0]["OutputValue"]
@@ -568,12 +588,30 @@ class CloudformationStack:
         if self.exists:
             for module in self.modules:
                 echo.enum_elm(f"preparing stack for module '{module.id}'")
-                stack_tpl = module.stack
-                for resource in stack_tpl.resources.values():
-                    self.template.add_resource(resource)
-                for output in stack_tpl.outputs.values():
-                    self.template.add_output(output)
-                for parameter in stack_tpl.parameters.values():
-                    self.template.add_parameter(parameter)
-                for name, mapping in stack_tpl.mappings.items():
-                    self.template.add_mapping(name, mapping)
+
+                # add module prefix to outputs
+                # e.g. for module redash: ServerIP => RedashServerIP
+                module_stack = module.stack
+                outputs_prefixed = {}
+                for title, output in module_stack.outputs.items():
+                    output.title = f"{module.id.title()}{output.title}"
+                    outputs_prefixed[output.title] = output
+                module_stack.outputs = outputs_prefixed
+
+                # deploy stack as nested stack
+                with TemporaryDirectory() as tmp_dir:
+                    # write module stack tpl to tmp file
+                    s3_resource = self.boto_session.resource("s3")
+                    s3_bucket_name = self.get_output("S3BucketName")
+                    tmp_file_path = Path(tmp_dir, f"{module.id}_stack_tpl.yml")
+                    with io.open(tmp_file_path, "w+") as tmp_file_fh:
+                        # upload nested stack tpl filt to s3
+                        tmp_file_fh.write(module_stack.to_yaml())
+                        tmp_file_fh.seek(0)
+                        s3_filename = f"{S3_DEPLOYMENT_PREFIX}{self.artifact_filename_hashed(tmp_file_fh.name)}"
+                        s3_resource.Object(s3_bucket_name, s3_filename).put(Body=tmp_file_fh.read())
+
+                        # add stack resource
+                        self.template.add_resource(
+                            Stack(module.id, TemplateURL=f"https://s3.amazonaws.com/{s3_bucket_name}/{s3_filename}",)
+                        )

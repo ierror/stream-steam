@@ -44,11 +44,5 @@ class AbstractManifest(ABC):
             res_name = f"{res_name}-{name}"
         return res_name
 
-    @classmethod
-    def cf_logic_id(cls, name):
-        # adds module name prefix to a Resource
-        # e.g. KeyName => RedashKeyName
-        return f"{cls.id.title()}{name.title()}"
-
     def __init__(self, root_stack):
         self.root_stack = root_stack
