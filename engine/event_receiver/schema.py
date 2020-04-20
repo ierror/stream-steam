@@ -10,7 +10,7 @@ TIMESTAMP_FIELDS = ["event_datetime"]
 #  lang: Accept-Language HTTP (already present for ios, check android)
 #  uid user_id (str)
 # cid  visitor ID (str)
-# dimension[0-999] custom dimension
+# dimension[0-999] custom dimensionlast
 
 # events from clients
 INCOMING = [

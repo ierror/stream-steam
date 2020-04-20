@@ -18,7 +18,7 @@ APP_MAIN_PATH = Path(__file__).parent
 def create_demo_index_file(tracking_server_url):
     tpl_loader = jinja2.FileSystemLoader(searchpath=APP_MAIN_PATH.absolute())
     tpl_env = jinja2.Environment(loader=tpl_loader)
-    tpl = tpl_env.get_template("index_tpl.html")
+    tpl = tpl_env.get_template("index.html.tpl")
     html = tpl.render(tracking_server_url=tracking_server_url)
     index_file = Path(APP_MAIN_PATH, "index.html")
     with index_file.open("w") as fh:

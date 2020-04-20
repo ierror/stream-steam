@@ -6,6 +6,7 @@ import click
 from cli import echo
 from cli.colors import ERROR, NEUTRAL, SUCCESS, WARNING
 from cli.config import ConfigManager
+from clients.android.cli import demo_tracking_android
 from clients.ios.cli import demo_tracking_ios
 from clients.web.cli import demo_tracking_web
 from dateutil import tz
@@ -231,6 +232,7 @@ cli.add_command(deploy)
 cli.add_command(describe_deployment)
 cli.add_command(demo_tracking_web(CF_STACK_NAME, cfg))
 cli.add_command(demo_tracking_ios(CF_STACK_NAME, cfg))
+cli.add_command(demo_tracking_android(CF_STACK_NAME, cfg))
 cli.add_command(destroy)
 cli.add_command(events)
 

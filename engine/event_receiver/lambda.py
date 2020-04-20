@@ -47,6 +47,11 @@ def lambda_handler(event_in, context):
         if param.name_out in event_out:
             if param.type == bool:
                 event_out[param.name_out] = bool(int(event_out[param.name_out]))
+            elif param.type == int:
+                if event_out[param.name_out] == "":
+                    event_out[param.name_out] = None
+                else:
+                    event_out[param.name_out] = int(event_out[param.name_out])
             else:
                 event_out[param.name_out] = param.type(event_out[param.name_out])
 

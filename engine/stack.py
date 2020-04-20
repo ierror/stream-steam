@@ -192,6 +192,17 @@ class CloudformationStack:
             self.error_and_exit(f"Stack '{self.name}' does not exist")
         return True
 
+    @property
+    def module_stacks(self):
+        # 2. module stacks outputs
+        cloudformation_client = self.boto_session.client("cloudformation")
+        paginator = cloudformation_client.get_paginator("describe_stacks")
+        page_iterator = paginator.paginate()
+        for module_stack_batch in page_iterator:
+            modules_stack_batch = module_stack_batch["Stacks"]
+            for module_stack in modules_stack_batch:
+                yield module_stack
+
     def get_outputs(self):
         if self.exists_or_exit():
             cf_client = self.boto_session.client("cloudformation")
@@ -202,16 +213,11 @@ class CloudformationStack:
             outputs += stack_result["Stacks"][0]["Outputs"]
 
             # 2. module stacks outputs
-            cloudformation_client = self.boto_session.client("cloudformation")
-            paginator = cloudformation_client.get_paginator("describe_stacks")
-            page_iterator = paginator.paginate()
-            for module_stack_batch in page_iterator:
-                modules_stack_batch = module_stack_batch["Stacks"]
-                for module_stack in modules_stack_batch:
-                    if module_stack.get("ParentId") == self.stack_id:
-                        if module_stack["StackStatus"] == "DELETE_COMPLETE":
-                            continue
-                        outputs += module_stack["Outputs"]
+            for module_stack in self.module_stacks:
+                if module_stack.get("ParentId") == self.stack_id:
+                    if module_stack["StackStatus"] == "DELETE_COMPLETE":
+                        continue
+                    outputs += module_stack.get("Outputs", [])
 
             return outputs
 

@@ -16,9 +16,9 @@ func initTracker() -> MatomoTracker {
     if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
         resourceFileDictionary = NSDictionary(contentsOfFile: path)
     }
-    
+
     // actual tracker
-    let matomoTracker = MatomoTracker(siteId: "dev.ios", baseURL: URL(string: resourceFileDictionary?["TrackingServerURL"] as! String)!)
+    let matomoTracker = MatomoTracker(siteId: "1", baseURL: URL(string: resourceFileDictionary?["TrackingServerURL"] as! String)!)
     matomoTracker.logger = DefaultLogger(minLevel: .debug)
     return matomoTracker
 }
@@ -65,7 +65,7 @@ struct ViewTab2: View {
 
 struct ContentView: View {
     @State private var selection = 0
- 
+
     var body: some View {
         TabView(selection: $selection) {
             ViewTab1()
@@ -81,7 +81,7 @@ struct ContentView: View {
                     matomoTracker.track(view: ["First View"])
                     matomoTracker.dispatch()
                 }
-            
+
             ViewTab2()
                 .font(.title)
                 .tabItem {

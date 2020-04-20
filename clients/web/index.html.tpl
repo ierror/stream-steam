@@ -9,7 +9,7 @@
 <!-- StreamSteam -->
 <script type="text/javascript">
   var $TRACKING_SERVER_URL = '{{ tracking_server_url }}';
-  var $SITE_ID = "dev.web";
+  var $SITE_ID = 0;
 
   var _paq = window._paq || [];
   _paq.push(['trackPageView']);
