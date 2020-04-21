@@ -113,6 +113,7 @@ class CloudformationStack:
                 "UPDATE_IN_PROGRESS" in exception.response["Error"]["Message"]
                 or "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS" in exception.response["Error"]["Message"]
                 or "CREATE_IN_PROGRESS" in exception.response["Error"]["Message"]
+                or "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS" in exception.response["Error"]["Message"]
             ):
                 self.error_and_exit("stack is already updating...")
             else:
@@ -593,14 +594,15 @@ class CloudformationStack:
         # add templates for enabled modules
         if self.exists:
             for module in self.modules:
-                echo.enum_elm(f"preparing stack for module '{module.id}'")
+                echo.enum_elm(f"preparing stack for module {module.id}")
 
                 # add module prefix to outputs
                 # e.g. for module redash: ServerIP => RedashServerIP
+                module_res_name = module.id.lower().replace("-", "")
                 module_stack = module.stack
                 outputs_prefixed = {}
                 for title, output in module_stack.outputs.items():
-                    output.title = f"{module.id.title()}{output.title}"
+                    output.title = f"{module_res_name.title()}{output.title}"
                     outputs_prefixed[output.title] = output
                 module_stack.outputs = outputs_prefixed
 
@@ -619,5 +621,7 @@ class CloudformationStack:
 
                         # add stack resource
                         self.template.add_resource(
-                            Stack(module.id, TemplateURL=f"https://s3.amazonaws.com/{s3_bucket_name}/{s3_filename}",)
+                            Stack(
+                                module_res_name, TemplateURL=f"https://s3.amazonaws.com/{s3_bucket_name}/{s3_filename}",
+                            )
                         )

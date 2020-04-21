@@ -2,6 +2,7 @@ TODOs
 -----
 
 # P1
+- destroy stack (with enabled module), disable app => stack is redeployed
 - resource tagging, also for modules
 - docu how to use redash (ssh?)
 - show latest stack errors if deployment fails
