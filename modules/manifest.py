@@ -22,6 +22,11 @@ class AbstractManifest(ABC):
     def install_warning(self):
         pass
 
+    @classmethod
+    @abstractmethod
+    def print_howto(cls, *args, **kwargs):
+        pass
+
     @abstractmethod
     def pre_deploy(self, *args, **kwargs):
         pass

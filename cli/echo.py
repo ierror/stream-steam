@@ -7,6 +7,10 @@ def h1(text):
     secho(f"\n## {text}", fg=PRIMARY)
 
 
+def h2(text):
+    secho(f"\n### {text}", fg=SUCCESS)
+
+
 def enum_elm(text, nl=True, dash_color=SUCCESS):
     prefix_char = "-"
     if dash_color == ERROR:
@@ -32,3 +36,7 @@ def warning(text, nl=True):
 def error(text, nl=True):
     secho(f"\n## Error", fg=ERROR)
     enum_elm(f"{text}\n", nl=nl, dash_color=ERROR)
+
+
+def code(text, nl=True):
+    echo(f"{text}", nl=nl)

@@ -149,26 +149,16 @@ def module():
     pass
 
 
-@module.command("list")
-def module_list():
-    echo.h1("Enabled Modules")
-    for module in modules.enabled().values():
-        echo.enum_elm(f"{module.id}: {module.description}")
-
-    echo.h1("Disabled Modules")
-    for module in modules.disabled().values():
-        echo.enum_elm(f"{module.id}: {module.description}", dash_color=ERROR)
-
-
 @module.command("enable")
 @click.option("--name", required=True, type=click.Choice(modules.keys(), case_sensitive=False))
 def module_enable(name):
-    echo.h1(f"Module '{name}'")
+    echo.h1(f"Module {name}")
     if name in modules.enabled().keys():
         echo.error("module already enabled")
         exit(2)
 
-    install_warning = modules[name].install_warning
+    module = modules[name]
+    install_warning = module.install_warning
     if install_warning:
         echo.enum_elm(f"WARNING: {install_warning}", dash_color=WARNING)
 
@@ -184,14 +174,37 @@ def module_enable(name):
         echo.success("Successfully enabled module")
         echo.info("")
 
+        cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+        module(cf_stack).print_howto()
+
+
+@module.command("list")
+def module_list():
+    echo.h1("Enabled Modules")
+    for module in modules.enabled().values():
+        echo.enum_elm(f"{module.id}: {module.description}")
+
+    echo.h1("Disabled Modules")
+    for module in modules.disabled().values():
+        echo.enum_elm(f"{module.id}: {module.description}", dash_color=ERROR)
+
+
+@module.command("howto")
+@click.option("--name", required=True, type=click.Choice(modules.keys(), case_sensitive=False))
+def module_howto(name):
+    if name not in modules.enabled().keys():
+        echo.error("enable the module first to get instructions how to use it")
+        exit(2)
+    cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+    modules[name](cf_stack).print_howto()
+
 
 @module.command("disable")
 @click.option("--name", required=True, type=click.Choice(modules.keys(), case_sensitive=False))
 def module_disable(name):
-    echo.h1(f"Module '{name}'")
-
+    echo.h1(f"Module {name}")
     if name not in modules.enabled().keys():
-        echo.error("module is not enabled, therefore it can'template be deactivated")
+        echo.error("module is not enabled, therefore it can't be deactivated")
         exit(2)
 
     echo.enum_elm(

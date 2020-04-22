@@ -4,7 +4,8 @@ TODOs
 # P1
 - destroy stack (with enabled module), disable app => stack is redeployed
 - resource tagging, also for modules
-- docu how to use redash (ssh?)
+- remove ssh keys on post deploy
+- docu how to use redash / spark cluster (ssh?)
 - show latest stack errors if deployment fails
 - option to mask ips (GDPR) + demo
 - split credentials cfg and stack cfg
