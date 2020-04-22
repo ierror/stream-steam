@@ -177,8 +177,9 @@ def module_enable(name):
     )
     if click.confirm(""):
         cfg.add_to_list("modules_enabled", name)
-        cfg.write()
         _deploy()
+        cfg.write()
+
         echo.info("")
         echo.success("Successfully enabled module")
         echo.info("")
@@ -200,9 +201,9 @@ def module_disable(name):
     )
     if click.confirm(""):
         cfg.remove_from_list("modules_enabled", name)
+        _deploy()
         cfg.write()
 
-        _deploy()
         echo.info("")
         echo.success("Successfully disabled module")
         echo.info("")
