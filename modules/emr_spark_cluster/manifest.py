@@ -27,12 +27,16 @@ class Manifest(AbstractManifest):
         echo.code("pyspark")
 
         echo.h2("run the following example code")
+        echo.code("from pyspark.sql.functions import year, month, dayofmonth")
         echo.code(
             f"df = spark.read.json('s3a://{self.root_stack.get_output('S3BucketName')}/{S3_ENRICHED_PREFIX}*/*/*/*/*.gz')"
         )
         echo.code("df.count()")
         echo.code(
-            "df.groupBy('action_name', 'geo_info.city', 'device_info.device.name', 'device_info.device.type').count().show()"
+            "df.groupBy("
+            " year('event_datetime').alias('year'), month('event_datetime').alias('month'), dayofmonth('event_datetime').alias('day'), "
+            " 'action_name', 'geo_info.city', 'device_info.device.name', 'device_info.device.type'"
+            ").count().show()"
         )
         echo.info("")
 
