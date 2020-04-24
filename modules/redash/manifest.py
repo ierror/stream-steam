@@ -2,6 +2,7 @@ from pathlib import Path
 
 from botocore.exceptions import ClientError
 from cached_property import cached_property
+from cli import echo
 
 from ..manifest import AbstractManifest
 from . import stack
@@ -13,9 +14,24 @@ class Manifest(AbstractManifest):
     description = '"Redash helps you make sense of your data" - https://redash.io'
     install_warning = "This module creates an Amazon EC2 instance"
 
+    def print_howto(self):
+        echo.h1("How to connect to redash")
+
+        echo.h2("connect via HTTP to redash")
+        echo.code(f"http://{self.root_stack.get_output('RedashServerIP')}")
+
+        echo.h2("connect via SSH to the server")
+        echo.code(f"ssh -i {self.ssh_keypair_path.absolute()} ubuntu@{self.root_stack.get_output('RedashServerIP')}")
+
+        echo.info("")
+
     @cached_property
     def ssh_keypair_name(self):
         return self.build_resource_name()
+
+    @cached_property
+    def ssh_keypair_path(self):
+        return Path("var", f"{self.ssh_keypair_name}.pem")
 
     @property
     def stack(self):
