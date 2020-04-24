@@ -10,7 +10,6 @@ TODOs
 - option to mask ips (GDPR) + demo
 - split credentials cfg and stack cfg
 - backend event example 
-- android example   
 - clients docu
 - integrate matomo missing params, and e-commerce params
 - partition athena data?

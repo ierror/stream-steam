@@ -38,7 +38,7 @@ PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", ""
 
 OUTPUT_API_GATEWAY_ENDPOINT = "APIGatewayEndpoint"
 S3_TEPM_PREFIX = "tmp/"
-S3_ENRICHED_PREFIX = "enriched/"
+S3_ENRICHED_PREFIX = "events/enriched/"
 S3_DEPLOYMENT_PREFIX = f"{S3_TEPM_PREFIX}deployment/"
 
 event_receiver_zip_path = Path(PROJECT_ROOT, "engine", "event_receiver", "dist", "event_receiver.zip")
