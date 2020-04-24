@@ -31,7 +31,7 @@ from troposphere.glue import Column, Database, DatabaseInput, SerdeInfo, Storage
 from troposphere.iam import Policy, Role
 from troposphere.s3 import Bucket, Private
 
-from .event_receiver import schema as event_schema
+from .matomo_event_receiver import schema as event_schema
 
 API_DEPLOYMENT_STAGE = "v1"
 PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "")
@@ -41,7 +41,7 @@ S3_TEPM_PREFIX = "tmp/"
 S3_ENRICHED_PREFIX = "events/enriched/"
 S3_DEPLOYMENT_PREFIX = f"{S3_TEPM_PREFIX}deployment/"
 
-event_receiver_zip_path = Path(PROJECT_ROOT, "engine", "event_receiver", "dist", "event_receiver.zip")
+event_receiver_zip_path = Path(PROJECT_ROOT, "engine", "matomo_event_receiver", "dist", "matomo_event_receiver.zip")
 
 
 class CloudformationStack:
@@ -71,8 +71,8 @@ class CloudformationStack:
     @classmethod
     def artifact_filename_hashed(cls, artifact_file):
         """
-        :param artifact_file: e.g. ./foo/event_receiver.zip
-        :return: ./foo/event_receiver-<hash>.zip
+        :param artifact_file: e.g. ./foo/matomo_event_receiver.zip
+        :return: ./foo/matomo_event_receiver-<hash>.zip
         """
         hash_md5 = hashlib.md5()
         with io.open(artifact_file, "rb") as f:
@@ -339,12 +339,12 @@ class CloudformationStack:
         )
 
         # Event Receiver Lambda
-        event_receiver_lambda_name = self.build_resource_name("event-receiver")
+        matomo_event_receiver_lambda_name = self.build_resource_name("matomo-event-receiver")
 
         self.template.add_resource(
             Function(
-                "LambdaEventReceiver",
-                FunctionName=event_receiver_lambda_name,
+                "LambdaMatomoEventReceiver",
+                FunctionName=matomo_event_receiver_lambda_name,
                 Code=Code(
                     S3Bucket=Ref(s3_bucket),
                     S3Key=f"{S3_DEPLOYMENT_PREFIX}{self.artifact_filename_hashed(event_receiver_zip_path)}",
@@ -372,7 +372,7 @@ class CloudformationStack:
         api_gateway_deployment = self.template.add_resource(
             Deployment(
                 f"APIGatewayDeployment{API_DEPLOYMENT_STAGE}",
-                DependsOn="APIGatewayLambdaEventReceiverMain",
+                DependsOn="APIGatewayLambdaMatomoEventReceiverMain",
                 RestApiId=Ref(api_gateway),
             )
         )
@@ -402,8 +402,8 @@ class CloudformationStack:
 
             return self.template.add_resource(
                 Method(
-                    f"APIGatewayLambdaEventReceiver{suffix}",
-                    DependsOn="LambdaEventReceiver",
+                    f"APIGatewayLambdaMatomoEventReceiver{suffix}",
+                    DependsOn="LambdaMatomoEventReceiver",
                     RestApiId=Ref(api_gateway),
                     AuthorizationType="NONE",
                     ResourceId=Ref(resource),
@@ -416,7 +416,7 @@ class CloudformationStack:
                             "",
                             [
                                 f"arn:aws:apigateway:{self.region_name}:lambda:path/2015-03-31/functions/",
-                                GetAtt("LambdaEventReceiver", "Arn"),
+                                GetAtt("LambdaMatomoEventReceiver", "Arn"),
                                 "/invocations",
                             ],
                         ),
@@ -427,9 +427,9 @@ class CloudformationStack:
         # API Gateway Lambda method
         _lambda_method_obj(
             Resource(
-                "APIGatewayResourceEventReceiverMain",
+                "APIGatewayResourceMatomoEventReceiverMain",
                 RestApiId=Ref(api_gateway),
-                PathPart="event-receiver",
+                PathPart="matomo-event-receiver",
                 ParentId=GetAtt("APIGateway", "RootResourceId"),
             ),
             "Main",
@@ -438,7 +438,7 @@ class CloudformationStack:
         # matomo.php path alias for the event receiver lambda
         _lambda_method_obj(
             Resource(
-                "APIGatewayResourceEventReceiverMatomo",
+                "APIGatewayResourceMatomoEventReceiverMatomo",
                 RestApiId=Ref(api_gateway),
                 PathPart="matomo.php",
                 ParentId=GetAtt("APIGateway", "RootResourceId"),

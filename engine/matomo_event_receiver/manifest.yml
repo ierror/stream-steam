@@ -1,5 +1,5 @@
 functions:
-  event_receiver:
+  matomo_event_receiver:
     image: lambci/lambda:build-python3.7
     requirements: ./requirements.txt
     include:

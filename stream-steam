@@ -79,7 +79,7 @@ def config():
 def build():
     echo.h1("Packaging")
     echo.enum_elm("building lambda packages...")
-    os.chdir("engine/event_receiver")
+    os.chdir("engine/matomo_event_receiver")
     del sys.argv[0]
     juniper_build()
 

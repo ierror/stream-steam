@@ -41,7 +41,7 @@ def demo_tracking_web(cf_stack_name, cfg):
 
         # create index.html
         cf_stack = CloudformationStack(cf_stack_name, cfg)
-        create_demo_index_file(f'{cf_stack.get_output("APIGatewayEndpoint")}/event-receiver/')
+        create_demo_index_file(f'{cf_stack.get_output("APIGatewayEndpoint")}/matomo-event-receiver/')
 
         # serve the demo
         echo.enum_elm(f"serving demo at {serve_url}")
