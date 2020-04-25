@@ -79,7 +79,7 @@ def config():
 def build():
     echo.h1("Packaging")
     echo.enum_elm("building lambda packages...")
-    os.chdir("engine/event_receiver")
+    os.chdir("engine/matomo_event_receiver")
     del sys.argv[0]
     juniper_build()
 
@@ -149,6 +149,35 @@ def module():
     pass
 
 
+@module.command("enable")
+@click.option("--name", required=True, type=click.Choice(modules.keys(), case_sensitive=False))
+def module_enable(name):
+    echo.h1(f"Module {name}")
+    if name in modules.enabled().keys():
+        echo.error("module already enabled")
+        exit(2)
+
+    module = modules[name]
+    install_warning = module.install_warning
+    if install_warning:
+        echo.enum_elm(f"WARNING: {install_warning}", dash_color=WARNING)
+
+    echo.enum_elm(
+        "enable module?", nl=False, dash_color=WARNING,
+    )
+    if click.confirm(""):
+        cfg.add_to_list("modules_enabled", name)
+        _deploy()
+        cfg.write()
+
+        echo.info("")
+        echo.success("Successfully enabled module")
+        echo.info("")
+
+        cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+        module(cf_stack).print_howto()
+
+
 @module.command("list")
 def module_list():
     echo.h1("Enabled Modules")
@@ -160,37 +189,22 @@ def module_list():
         echo.enum_elm(f"{module.id}: {module.description}", dash_color=ERROR)
 
 
-@module.command("enable")
+@module.command("howto")
 @click.option("--name", required=True, type=click.Choice(modules.keys(), case_sensitive=False))
-def module_enable(name):
-    echo.h1(f"Module '{name}'")
-    if name in modules.enabled().keys():
-        echo.error("module already enabled")
+def module_howto(name):
+    if name not in modules.enabled().keys():
+        echo.error("enable the module first to get instructions how to use it")
         exit(2)
-
-    install_warning = modules[name].install_warning
-    if install_warning:
-        echo.enum_elm(f"WARNING: {install_warning}", dash_color=WARNING)
-
-    echo.enum_elm(
-        "enable module?", nl=False, dash_color=WARNING,
-    )
-    if click.confirm(""):
-        cfg.add_to_list("modules_enabled", name)
-        cfg.write()
-        _deploy()
-        echo.info("")
-        echo.success("Successfully enabled module")
-        echo.info("")
+    cf_stack = CloudformationStack(CF_STACK_NAME, cfg)
+    modules[name](cf_stack).print_howto()
 
 
 @module.command("disable")
 @click.option("--name", required=True, type=click.Choice(modules.keys(), case_sensitive=False))
 def module_disable(name):
-    echo.h1(f"Module '{name}'")
-
+    echo.h1(f"Module {name}")
     if name not in modules.enabled().keys():
-        echo.error("module is not enabled, therefore it can'template be deactivated")
+        echo.error("module is not enabled, therefore it can't be deactivated")
         exit(2)
 
     echo.enum_elm(
@@ -200,9 +214,9 @@ def module_disable(name):
     )
     if click.confirm(""):
         cfg.remove_from_list("modules_enabled", name)
+        _deploy()
         cfg.write()
 
-        _deploy()
         echo.info("")
         echo.success("Successfully disabled module")
         echo.info("")

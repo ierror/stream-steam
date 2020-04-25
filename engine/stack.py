@@ -31,17 +31,17 @@ from troposphere.glue import Column, Database, DatabaseInput, SerdeInfo, Storage
 from troposphere.iam import Policy, Role
 from troposphere.s3 import Bucket, Private
 
-from .event_receiver import schema as event_schema
+from .matomo_event_receiver import schema as event_schema
 
 API_DEPLOYMENT_STAGE = "v1"
 PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "")
 
 OUTPUT_API_GATEWAY_ENDPOINT = "APIGatewayEndpoint"
 S3_TEPM_PREFIX = "tmp/"
-S3_ENRICHED_PREFIX = "enriched/"
+S3_ENRICHED_PREFIX = "events/enriched/"
 S3_DEPLOYMENT_PREFIX = f"{S3_TEPM_PREFIX}deployment/"
 
-event_receiver_zip_path = Path(PROJECT_ROOT, "engine", "event_receiver", "dist", "event_receiver.zip")
+event_receiver_zip_path = Path(PROJECT_ROOT, "engine", "matomo_event_receiver", "dist", "matomo_event_receiver.zip")
 
 
 class CloudformationStack:
@@ -71,8 +71,8 @@ class CloudformationStack:
     @classmethod
     def artifact_filename_hashed(cls, artifact_file):
         """
-        :param artifact_file: e.g. ./foo/event_receiver.zip
-        :return: ./foo/event_receiver-<hash>.zip
+        :param artifact_file: e.g. ./foo/matomo_event_receiver.zip
+        :return: ./foo/matomo_event_receiver-<hash>.zip
         """
         hash_md5 = hashlib.md5()
         with io.open(artifact_file, "rb") as f:
@@ -113,6 +113,7 @@ class CloudformationStack:
                 "UPDATE_IN_PROGRESS" in exception.response["Error"]["Message"]
                 or "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS" in exception.response["Error"]["Message"]
                 or "CREATE_IN_PROGRESS" in exception.response["Error"]["Message"]
+                or "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS" in exception.response["Error"]["Message"]
             ):
                 self.error_and_exit("stack is already updating...")
             else:
@@ -338,12 +339,12 @@ class CloudformationStack:
         )
 
         # Event Receiver Lambda
-        event_receiver_lambda_name = self.build_resource_name("event-receiver")
+        matomo_event_receiver_lambda_name = self.build_resource_name("matomo-event-receiver")
 
         self.template.add_resource(
             Function(
-                "LambdaEventReceiver",
-                FunctionName=event_receiver_lambda_name,
+                "LambdaMatomoEventReceiver",
+                FunctionName=matomo_event_receiver_lambda_name,
                 Code=Code(
                     S3Bucket=Ref(s3_bucket),
                     S3Key=f"{S3_DEPLOYMENT_PREFIX}{self.artifact_filename_hashed(event_receiver_zip_path)}",
@@ -371,7 +372,7 @@ class CloudformationStack:
         api_gateway_deployment = self.template.add_resource(
             Deployment(
                 f"APIGatewayDeployment{API_DEPLOYMENT_STAGE}",
-                DependsOn="APIGatewayLambdaEventReceiverMain",
+                DependsOn="APIGatewayLambdaMatomoEventReceiverMain",
                 RestApiId=Ref(api_gateway),
             )
         )
@@ -401,8 +402,8 @@ class CloudformationStack:
 
             return self.template.add_resource(
                 Method(
-                    f"APIGatewayLambdaEventReceiver{suffix}",
-                    DependsOn="LambdaEventReceiver",
+                    f"APIGatewayLambdaMatomoEventReceiver{suffix}",
+                    DependsOn="LambdaMatomoEventReceiver",
                     RestApiId=Ref(api_gateway),
                     AuthorizationType="NONE",
                     ResourceId=Ref(resource),
@@ -415,7 +416,7 @@ class CloudformationStack:
                             "",
                             [
                                 f"arn:aws:apigateway:{self.region_name}:lambda:path/2015-03-31/functions/",
-                                GetAtt("LambdaEventReceiver", "Arn"),
+                                GetAtt("LambdaMatomoEventReceiver", "Arn"),
                                 "/invocations",
                             ],
                         ),
@@ -426,9 +427,9 @@ class CloudformationStack:
         # API Gateway Lambda method
         _lambda_method_obj(
             Resource(
-                "APIGatewayResourceEventReceiverMain",
+                "APIGatewayResourceMatomoEventReceiverMain",
                 RestApiId=Ref(api_gateway),
-                PathPart="event-receiver",
+                PathPart="matomo-event-receiver",
                 ParentId=GetAtt("APIGateway", "RootResourceId"),
             ),
             "Main",
@@ -437,7 +438,7 @@ class CloudformationStack:
         # matomo.php path alias for the event receiver lambda
         _lambda_method_obj(
             Resource(
-                "APIGatewayResourceEventReceiverMatomo",
+                "APIGatewayResourceMatomoEventReceiverMatomo",
                 RestApiId=Ref(api_gateway),
                 PathPart="matomo.php",
                 ParentId=GetAtt("APIGateway", "RootResourceId"),
@@ -593,14 +594,15 @@ class CloudformationStack:
         # add templates for enabled modules
         if self.exists:
             for module in self.modules:
-                echo.enum_elm(f"preparing stack for module '{module.id}'")
+                echo.enum_elm(f"preparing stack for module {module.id}")
 
                 # add module prefix to outputs
                 # e.g. for module redash: ServerIP => RedashServerIP
+                module_res_name = module.id.lower().replace("-", "")
                 module_stack = module.stack
                 outputs_prefixed = {}
                 for title, output in module_stack.outputs.items():
-                    output.title = f"{module.id.title()}{output.title}"
+                    output.title = f"{module_res_name.title()}{output.title}"
                     outputs_prefixed[output.title] = output
                 module_stack.outputs = outputs_prefixed
 
@@ -619,5 +621,7 @@ class CloudformationStack:
 
                         # add stack resource
                         self.template.add_resource(
-                            Stack(module.id, TemplateURL=f"https://s3.amazonaws.com/{s3_bucket_name}/{s3_filename}",)
+                            Stack(
+                                module_res_name, TemplateURL=f"https://s3.amazonaws.com/{s3_bucket_name}/{s3_filename}",
+                            )
                         )

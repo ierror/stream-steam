@@ -15,9 +15,8 @@ class Modules(dict):
         modules_path = Path("modules/")
         for module_path in [p for p in modules_path.iterdir() if p.is_dir() and p.name not in ["__pycache__"]]:
             # e.g. modules/spark_cluster => spark_cluster
-            module_id = module_path.name
-            module = import_module(f"modules.{module_id}.manifest")
-            self._cache[module_id] = module.Manifest
+            module = import_module(f"modules.{module_path.name}.manifest")
+            self._cache[module.Manifest.id] = module.Manifest
 
     def __setitem__(self, key, value):
         raise RuntimeError()

@@ -57,6 +57,7 @@ def build(ssh_keypair_name):
                 "t2.micro",
                 "t2.small",
                 "t2.medium",
+                "t3a.small",
                 "m3.medium",
                 "m3.large",
                 "m3.xlarge",

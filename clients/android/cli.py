@@ -29,7 +29,7 @@ def demo_tracking_android(cf_stack_name, cfg):
         if platform.system() == "Darwin":
             # create Info.plist with valid tracking URL
             cf_stack = CloudformationStack(cf_stack_name, cfg)
-            gradle_path = create_app_gradle(f'{cf_stack.get_output("APIGatewayEndpoint")}/event-receiver/')
+            gradle_path = create_app_gradle(f'{cf_stack.get_output("APIGatewayEndpoint")}/matomo-event-receiver/')
 
             # open Android Studio
             echo.enum_elm("starting Android Studio...")
