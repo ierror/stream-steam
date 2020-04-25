@@ -1,1 +1,1 @@
-*.js linguist-detectable=false
+clients/web/js/*.js linguist-detectable=false
