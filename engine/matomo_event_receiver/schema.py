@@ -40,6 +40,7 @@ INCOMING = [
     Field("wma", "supports_mplayer2", bool),
     Field("realp", "supports_realaudio", bool),
     Field("send_image", "send_image", bool),
+    Field("cip", "ip", str),
     Field("e_c", "event_category", str),
     Field("e_a", "event_action", str),
     Field("e_n", "event_value_name", str),

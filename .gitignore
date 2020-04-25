@@ -21,3 +21,4 @@ sdist/
 /clients/web/index.html
 /clients/ios/ios/Info.plist
 /clients/android/app/build.gradle
+/docs/_build/
