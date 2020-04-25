@@ -31,7 +31,7 @@ def cli():
 @click.command()
 def config():
     # AWS Credentials and region_name
-    echo.h1(f"Configuration of you  r AWS '{ENV}' env")
+    echo.h1(f"Configuration of your AWS '{ENV}' env")
     echo.enum_elm("AWS Access Key", nl=False)
     cfg.set("aws_access_key_id", click.prompt("", default=cfg.get("aws_access_key_id")))
 
