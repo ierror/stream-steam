@@ -1,4 +1,3 @@
-import os
 from configparser import ConfigParser
 from pathlib import Path
 
@@ -14,7 +13,7 @@ class ConfigManager:
 
     @cached_property
     def file(self):
-        return os.path.join(str(Path.home()), ".stream-steam.cfg")
+        return Path(__file__).parent.parent.joinpath("stream-steam.cfg")
 
     def get(self, key, value_type=None):
         value = self._cfg.get(key)

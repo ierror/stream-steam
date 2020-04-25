@@ -3,25 +3,48 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to StreamSteam's documentation!
-=======================================
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   introduction
-   quickstart
 
 ======================================
 Scalable and Hackable Analytics on AWS
 ======================================
 
-> Installed and configured in minutes, yet extensible and scalable
+::
 
-Indices and tables
-==================
+     ______                     ______
+    / __/ /________ ___ ___ _  / __/ /____ ___ ___ _
+   _\ \/ __/ __/ -_) _ `/  ' \_\ \/ __/ -_) _ `/  ' \
+  /___/\__/_/  \__/\_,_/_/_/_/___/\__/\__/\_,_/_/_/_/
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+
+StreamSteam is a framework for creating event based near real-time analytics pipelines on AWS.
+Installed and configured in minutes, yet extensible and scalable.
+
+Architecture overview::
+
+   ┌────────────────┬─────────────────────────────────────────────────────────────┐
+   │Clients \o/     │StreamSteam on AWS                                           │
+   ├────────────────┼───────────────┬────────────────────────────┬────────────────┤
+   │                │    Core engine│        ┌────────────┐      │         Modules│
+   │                ├───────────────┘        │            │      ├────────────────┤
+   │                │                        ▼            │      │ ┌────────────┐ │
+   │  ┌──────────┐  │      ┌────────┐   ┌────────┐        │      │ │ Spark data │ │
+   │  │  Matomo  │  │      │  API   │   │   S3   │        └──────┼─│ processing │ │
+   │  │compatible│──┼─┬───▶│Gateway │   │Datalake│◀┐             │ └────────────┘ │
+   │  │ clients  │  │ │    └────────┘   └────────┘ │ ┌────────┐  │ ┌────────────┐ │
+   │  └──────────┘  │ │         │            ▲     │ │Athena /│  │ │   Redash   │ │
+   │  ┌──────────┐  │ │         ▼            │     └─│  Glue  │◀─┼─│ Dashboards │ │
+   │  │  Custom  │  │ │    ┌────────┐   ┌────────┐   └────────┘  │ └────────────┘ │
+   │  │  Event   │──┼─┘    │ Lambda │   │ Kines  │               │ ┌────────────┐ │
+   │  │  types   │  │      │        │──▶│Firehose│               │ │   Custom   │ │
+   │  └──────────┘  │      └────────┘   └────────┘               │ │  Modules   │ │
+   │                │                                            │ └────────────┘ │
+   └────────────────┴────────────────────────────────────────────┴────────────────┘
+
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   get_started
+   modules

@@ -1,6 +1,7 @@
 Get Started
 ===========
 
+
 Prerequisites
 -------------
 
@@ -10,52 +11,89 @@ Prerequisites
 * `ipinfo.io <https://ipinfo.io/>`_  account if you want to use geocoding (IP to user's geo info) (probably yes)
 * `userstack <https://userstack.com/>`_ account if you want to use device detection (Useragent to device info) (probably yes)
 
+
 Installation
 ------------
 
 * Fork the project and run git clone as always e.g.
 
+.. code-block:: bash
+
     git clone git@github.com:ierror/stream-steam.git
 
 * Install pipenv globally e.g.
+
+.. code-block:: bash
 
     pip3 install pipenv
 
 * Install project dependencies. pipenv takes care of creating the virtualenv for you - omit the `--dev` flag for installations in production environments
 
+.. code-block:: bash
+
     pipenv install --dev --python python3.7
 
 * Activate the created virtualenv
 
+.. code-block:: bash
+
     pipenv shell
 
-## Quickstart
 
-Configure the project
+Configuration
+-------------
+
+* Configure the project
+
+.. code-block:: bash
 
     ./stream-steam config
 
-Deploy it!
+* Deploy it!
+
+.. code-block:: bash
 
     ./stream-steam deploy
 
-Describe your deployment
+* Describe your deployment
+
+.. code-block:: bash
 
     ./stream-steam describe-deployment
 
-Run the Webtracking Demo
+* Run the Webtracking Demo
 
-    ./stream-steam demo-web-tracking
+.. code-block:: bash
+
+    ./stream-steam demo-tracking-web
 
 After 60s you can inspect the enriched events in your S3 Bucket (S3BucketName)
 
-    /enriched/...
+.. code-block:: bash
 
-Destroy it!
+    /events/enriched/...
+
+* Run the ios Demo
+
+.. code-block:: bash
+
+    ./stream-steam demo-tracking-ios
+
+* Run the Android Demo
+
+.. code-block:: bash
+
+    ./stream-steam demo-tracking-android
+
+
+* Destroy it!
+
+.. code-block:: bash
 
     ./stream-steam destroy
 
 Whats next?
+-----------
 
 ## Moudules
 

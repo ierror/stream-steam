@@ -47,4 +47,4 @@ Architecture overview::
    :caption: Contents:
 
    get_started
-
+   modules
