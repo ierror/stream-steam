@@ -4,16 +4,8 @@
    contain the root `toctree` directive.
 
 
-Scalable and Hackable Analytics on AWS
---------------------------------------
-
-::
-
-     ______                     ______
-    / __/ /________ ___ ___ _  / __/ /____ ___ ___ _
-   _\ \/ __/ __/ -_) _ `/  ' \_\ \/ __/ -_) _ `/  ' \
-  /___/\__/_/  \__/\_,_/_/_/_/___/\__/\__/\_,_/_/_/_/
-
+StreamSteam - Scalable and Hackable Analytics on AWS
+----------------------------------------------------
 
 StreamSteam is a framework for creating event based near real-time analytics pipelines on AWS.
 Installed and configured in minutes, yet extensible and scalable.
@@ -43,7 +35,6 @@ Architecture overview::
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    get_started
    modules

@@ -95,13 +95,7 @@ After 60s you can inspect the enriched events in your S3 Bucket (S3BucketName)
 Whats next?
 -----------
 
-## Moudules
+Enable :doc:`Modules <../modules>`  and make sense of your data!
 
-    ./stream-steam module list
 
-### Redash
-
-    ./stream-steam module enable --name redash
-
-... TODO
 
