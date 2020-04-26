@@ -17,25 +17,25 @@ Installation
 
 * Fork the project and run git clone as always e.g.
 
-.. code-block:: bash
+.. code-block::
 
     git clone git@github.com:ierror/stream-steam.git
 
 * Install pipenv globally e.g.
 
-.. code-block:: bash
+.. code-block::
 
     pip3 install pipenv
 
 * Install project dependencies. pipenv takes care of creating the virtualenv for you - omit the `--dev` flag for installations in production environments
 
-.. code-block:: bash
+.. code-block::
 
     pipenv install --dev --python python3.7
 
 * Activate the created virtualenv
 
-.. code-block:: bash
+.. code-block::
 
     pipenv shell
 
@@ -45,50 +45,50 @@ Configuration
 
 * Configure the project
 
-.. code-block:: bash
+.. code-block::
 
     ./stream-steam config
 
 * Deploy it!
 
-.. code-block:: bash
+.. code-block::
 
     ./stream-steam deploy
 
 * Describe your deployment
 
-.. code-block:: bash
+.. code-block::
 
     ./stream-steam describe-deployment
 
 * Run the Webtracking Demo
 
-.. code-block:: bash
+.. code-block::
 
     ./stream-steam demo-tracking-web
 
 After 60s you can inspect the enriched events in your S3 Bucket (S3BucketName)
 
-.. code-block:: bash
+.. code-block::
 
     /events/enriched/...
 
 * Run the ios Demo
 
-.. code-block:: bash
+.. code-block::
 
     ./stream-steam demo-tracking-ios
 
 * Run the Android Demo
 
-.. code-block:: bash
+.. code-block::
 
     ./stream-steam demo-tracking-android
 
 
 * Destroy it!
 
-.. code-block:: bash
+.. code-block::
 
     ./stream-steam destroy
 

@@ -4,9 +4,8 @@
    contain the root `toctree` directive.
 
 
-======================================
 Scalable and Hackable Analytics on AWS
-======================================
+--------------------------------------
 
 ::
 
