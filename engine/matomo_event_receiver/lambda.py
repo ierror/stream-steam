@@ -27,6 +27,8 @@ def lambda_handler(event_in, context):
     event_out = {
         "user_agent": event_in["requestContext"]["identity"]["userAgent"],
         "ip": event_in["requestContext"]["identity"]["sourceIp"],
+        "device_info": None,
+        "geo_info": None,
     }
 
     # extract post data
