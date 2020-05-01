@@ -20,7 +20,7 @@ class Manifest(AbstractManifest):
 
         echo.h2("connect via SSH to the master node")
         echo.code(
-            f"ssh -i {self.ssh_keypair_path.absolute()} hadoop@{self.root_stack.get_output('EmrsparkclusterMasterPublicDNS')}"
+            f"ssh -i {self.ssh_keypair_path.absolute()} hadoop@{self.root_stack.get_output('EmrSparkClusterMasterPublicDNS')}"
         )
 
         echo.h2("start pyspark, wait for the session to be started")

@@ -23,3 +23,4 @@ sdist/
 /clients/android/app/build.gradle
 /docs/_build/
 /stream-steam.cfg
+/docs/_resources/recordings/

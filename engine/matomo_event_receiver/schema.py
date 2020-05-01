@@ -29,6 +29,8 @@ INCOMING = [
     Field("pv_id", "page_view_id", str),
     Field("url", "page_view_url", str),
     Field("action_name", "action_name", str),
+    Field("ip", "ip", str),
+    Field("ua", "user_agent", str),
     Field("ag", "supports_silverlight", bool),
     Field("cookie", "supports_cookie", bool),
     Field("dir", "supports_director", bool),

@@ -221,7 +221,6 @@ def build(ssh_keypair_name):
             ReleaseLabel="emr-6.0.0",
             JobFlowRole=Ref(emr_instance_profile),
             ServiceRole=Ref(emr_service_role),
-            AutoScalingRole="EMR_AutoScaling_DefaultRole",
             Instances=emr.JobFlowInstancesConfig(
                 Ec2KeyName=Ref(keyname_param),
                 Ec2SubnetId=Ref(subnet),
@@ -232,9 +231,6 @@ def build(ssh_keypair_name):
                 ),
                 CoreInstanceGroup=emr.InstanceGroupConfigProperty(
                     Name="Core Instance",
-                    AutoScalingPolicy=emr.AutoScalingPolicy(
-                        Constraints=emr.ScalingConstraints(MinCapacity="1", MaxCapacity="1"),
-                    ),
                     EbsConfiguration=emr.EbsConfiguration(
                         EbsBlockDeviceConfigs=[
                             emr.EbsBlockDeviceConfigs(
