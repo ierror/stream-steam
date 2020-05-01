@@ -3,13 +3,13 @@ Scalable and Hackable Analytics on AWS
 ======================================
 
 .. image:: https://readthedocs.org/projects/streamsteam/badge/?version=latest
-   :target: https://streamsteam.readthedocs.io/en/latest/?badge=latest
+   :target: https://streamsteam.readthedocs.io/en/latest/
    :alt: Documentation Status
 
 StreamSteam is a framework for creating event based near real-time analytics pipelines on AWS.
 Installed and configured in minutes, yet extensible and scalable.
 
-For more documentation, please see https://streamsteam.readthedocs.io/en/latest/?badge=latest
+For more documentation, please see https://streamsteam.readthedocs.io/en/latest/
 
 Walkthrough Video
 =================
