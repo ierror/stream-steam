@@ -3,6 +3,7 @@ from pathlib import Path
 from botocore.exceptions import ClientError
 from cached_property import cached_property
 from cli import echo
+from engine.stack import S3_TEPM_PREFIX
 
 from ..manifest import AbstractManifest
 from . import stack
@@ -19,6 +20,13 @@ class Manifest(AbstractManifest):
 
         echo.h2("connect via HTTP to redash")
         echo.code(f"http://{self.root_stack.get_output('RedashServerIP')}")
+
+        echo.h2("setup redash")
+        echo.enum_elm(f"Name: {self.root_stack.name}")
+        echo.enum_elm(f"AWS Region: {self.root_stack.region_name}")
+        echo.enum_elm(f"AWS Access Key: {self.root_stack.cfg.get('aws_access_key_id')}")
+        echo.enum_elm(f"AWS Secret Key (masked): {self.root_stack.cfg.get('aws_secret_access_key')[0:5]}************")
+        echo.enum_elm(f"S3 Staging: s3://{self.root_stack.get_output('S3BucketName')}/{S3_TEPM_PREFIX}redash/")
 
         echo.h2("connect via SSH to the server")
         echo.code(f"ssh -i {self.ssh_keypair_path.absolute()} ubuntu@{self.root_stack.get_output('RedashServerIP')}")

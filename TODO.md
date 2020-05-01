@@ -5,7 +5,6 @@ TODOs
 - destroy stack (with enabled module), disable app => stack is redeployed
 - resource tagging, also for modules
 - remove ssh keys on post deploy
-- docu how to use redash / spark cluster (ssh?)
 - show latest stack errors if deployment fails
 - option to mask ips (GDPR) + demo
 - split credentials cfg and stack cfg
@@ -15,7 +14,6 @@ TODOs
 - partition athena data?
 - cloudwatch alerting / monitoring
 - cloudwatch expire logs
-- matomo License and copyright notice 
 
 # P2
 - ipv6 support (api gw, redash, ip masking)

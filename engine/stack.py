@@ -32,6 +32,7 @@ from troposphere.iam import Policy, Role
 from troposphere.s3 import Bucket, Private
 
 from .matomo_event_receiver import schema as event_schema
+from .utils import to_camel_case
 
 API_DEPLOYMENT_STAGE = "v1"
 PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "")
@@ -597,12 +598,12 @@ class CloudformationStack:
                 echo.enum_elm(f"preparing stack for module {module.id}")
 
                 # add module prefix to outputs
-                # e.g. for module redash: ServerIP => RedashServerIP
-                module_res_name = module.id.lower().replace("-", "")
                 module_stack = module.stack
                 outputs_prefixed = {}
                 for title, output in module_stack.outputs.items():
-                    output.title = f"{module_res_name.title()}{output.title}"
+                    # e.g. emr-spark-cluster => EmrSparkCluster
+                    module_name = to_camel_case(module.id)
+                    output.title = f"{module_name}{output.title}"
                     outputs_prefixed[output.title] = output
                 module_stack.outputs = outputs_prefixed
 
@@ -620,8 +621,8 @@ class CloudformationStack:
                         s3_resource.Object(s3_bucket_name, s3_filename).put(Body=tmp_file_fh.read())
 
                         # add stack resource
+                        module_id = module.id
+                        module_id = module_id.replace("-", "")
                         self.template.add_resource(
-                            Stack(
-                                module_res_name, TemplateURL=f"https://s3.amazonaws.com/{s3_bucket_name}/{s3_filename}",
-                            )
+                            Stack(module_id, TemplateURL=f"https://s3.amazonaws.com/{s3_bucket_name}/{s3_filename}",)
                         )

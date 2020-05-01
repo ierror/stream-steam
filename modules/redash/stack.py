@@ -52,7 +52,7 @@ def build(ssh_keypair_name):
             "InstanceType",
             Type="String",
             Description="WebServer EC2 instance type",
-            Default="t2.small",
+            Default="t3a.small",
             AllowedValues=[
                 "t2.micro",
                 "t2.small",
