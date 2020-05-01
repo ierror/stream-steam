@@ -4,7 +4,7 @@ Get Started
 
 
 Prerequisites
--------------
+=============
 
 * `Python <http://www.python.org/>`_ >= 3.6
 * `pip <https://pip.pypa.io/en/stable/installing/>`_ (python package manager)
@@ -14,7 +14,7 @@ Prerequisites
 
 
 Installation
-------------
+============
 
 * Fork the project and run git clone as always e.g.
 
@@ -48,7 +48,7 @@ Installation
 
 
 Configuration
--------------
+=============
 
 * Configure the project
 
@@ -100,7 +100,7 @@ After 60s you can inspect the enriched events in your S3 Bucket (S3BucketName)
     ./stream-steam destroy
 
 Whats next?
------------
+===========
 
 Enable :doc:`Modules <../modules>`  and make sense of your data!
 

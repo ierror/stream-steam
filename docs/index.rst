@@ -29,32 +29,35 @@ Chapters
 4. `How to use the EMR Spark Cluster module <https://www.youtube.com/watch?v=Z8YgLPXMyhA&t=15m00s>`_
 5. `Destroy the Stack <https://www.youtube.com/watch?v=Z8YgLPXMyhA&t=20m30s>`_
 
+Contact
+=======
 
-Architecture overview::
+`Maintainer: Bernhard Janetzki <mailto:boerni@gmail.com>`_
 
-   ┌────────────────┬─────────────────────────────────────────────────────────────┐
-   │Clients \o/     │StreamSteam on AWS                                           │
-   ├────────────────┼───────────────┬────────────────────────────┬────────────────┤
-   │                │    Core engine│        ┌────────────┐      │         Modules│
-   │                ├───────────────┘        │            │      ├────────────────┤
-   │                │                        ▼            │      │ ┌────────────┐ │
-   │  ┌──────────┐  │      ┌────────┐   ┌────────┐        │      │ │ Spark data │ │
-   │  │  Matomo  │  │      │  API   │   │   S3   │        └──────┼─│ processing │ │
-   │  │compatible│──┼─┬───▶│Gateway │   │Datalake│◀┐             │ └────────────┘ │
-   │  │ clients  │  │ │    └────────┘   └────────┘ │ ┌────────┐  │ ┌────────────┐ │
-   │  └──────────┘  │ │         │            ▲     │ │Athena /│  │ │   Redash   │ │
-   │  ┌──────────┐  │ │         ▼            │     └─│  Glue  │◀─┼─│ Dashboards │ │
-   │  │  Custom  │  │ │    ┌────────┐   ┌────────┐   └────────┘  │ └────────────┘ │
-   │  │  Event   │──┼─┘    │ Lambda │   │ Kines  │               │ ┌────────────┐ │
-   │  │  types   │  │      │        │──▶│Firehose│               │ │   Custom   │ │
-   │  └──────────┘  │      └────────┘   └────────┘               │ │  Modules   │ │
-   │                │                                            │ └────────────┘ │
-   └────────────────┴────────────────────────────────────────────┴────────────────┘
+Contributing
+============
 
+Contributions are always welcome. Please discuss larger changes via issue first before submitting a pull request.
 
+Legal
+=====
+
+This project is released under the `MIT license <https://github.com/ierror/stream-steam/blob/master/LICENSE>`_.
+
+This project uses the following  libraries:
+
+- `troposphere <https://github.com/cloudtools/troposphere>`_ released under the BSD 2-Clause license
+- `Matomo JavaScript tracking client <https://github.com/matomo-org/matomo/blob/master/js/piwik.js>`_ released under the BSD 3-Clause license
+- `matomo-sdk-android <https://github.com/matomo-org/matomo-sdk-android>`_ released under the BSD 3-Clause license
+- `matomo-sdk-ios <https://github.com/matomo-org/matomo-sdk-ios>`_ released under the MIT license
+
+Contents
+========
 
 .. toctree::
    :maxdepth: 3
 
    get_started
+   clients
    modules
+   architecture

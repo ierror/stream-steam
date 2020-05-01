@@ -3,7 +3,7 @@ Modules
 =======
 
 Overview
---------
+========
 
 Modules provide the possibility to extend StreamSteam.
 Two modules are currently shipped with StreamSteam. Own modules can be created.
@@ -35,7 +35,7 @@ Two modules are currently shipped with StreamSteam. Own modules can be created.
 
 
 Redash EC2 Instance
--------------------
+===================
 
 Dashboards for your data
 
@@ -107,8 +107,7 @@ Choose ``Amazon Athena``, you can find the necessary settings in the `setup reda
 
 
 EMR Spark Cluster
------------------
-
+=================
 
 A Spark Cluster for your data
 
