@@ -102,7 +102,7 @@ After 60s you can inspect the enriched events in your S3 Bucket (S3BucketName)
 Whats next?
 ===========
 
-Enable :doc:`Modules <../modules>`  and make sense of your data!
+Enable :doc:`Modules <../modules>` and make sense of your data or get an overview of the :doc:`Architecture <../architecture>` of StreamSteam.
 
 
 

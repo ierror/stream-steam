@@ -2,6 +2,7 @@
 Modules
 =======
 
+
 Overview
 ========
 
@@ -105,6 +106,11 @@ Choose ``Amazon Athena``, you can find the necessary settings in the `setup reda
 
 `Redash Documentation <https://redash.io/help/user-guide/dashboards/dashboard-editing>`_
 
+6. Disable the module
+
+.. code-block::
+
+    ./stream-steam module disable --name redash
 
 EMR Spark Cluster
 =================
@@ -129,3 +135,9 @@ A Spark Cluster for your data
 .. code-block::
 
     ./stream-steam module howto --name emr-spark-cluster
+
+3. Disable the module
+
+.. code-block::
+
+    ./stream-steam module disable --name emr-spark-cluster
