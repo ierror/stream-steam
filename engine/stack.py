@@ -11,7 +11,7 @@ from cached_property import cached_property
 from cli import echo
 from cli.colors import WARNING
 from modules import Modules
-from troposphere import GetAtt, Join, Output, Ref, Template
+from troposphere import GetAtt, Join, Output, Ref, Tags, Template
 from troposphere.apigateway import (
     ApiStage,
     Deployment,
@@ -32,7 +32,7 @@ from troposphere.iam import Policy, Role
 from troposphere.s3 import Bucket, Private
 
 from .matomo_event_receiver import schema as event_schema
-from .utils import to_camel_case
+from .utils import camel_case_to_dashed, dashed_to_camel_case
 
 API_DEPLOYMENT_STAGE = "v1"
 PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "")
@@ -82,6 +82,9 @@ class CloudformationStack:
         artifact_file = os.path.basename(artifact_file)
         basename, ext = os.path.splitext(artifact_file)
         return f"{basename}_{hash_md5.hexdigest()}{ext}"
+
+    def resource_tags(self, resource_name):
+        return Tags(Name=camel_case_to_dashed(resource_name))
 
     @property
     def stack_id(self):
@@ -336,6 +339,7 @@ class CloudformationStack:
                         }
                     ],
                 },
+                Tags=self.resource_tags("LambdaExecutionRole"),
             )
         )
 
@@ -363,11 +367,14 @@ class CloudformationStack:
                 ),
                 Role=GetAtt("LambdaExecutionRole", "Arn"),
                 Runtime="python3.7",
+                Tags=self.resource_tags("LambdaMatomoEventReceiver"),
             )
         )
 
         # API Gateway
-        api_gateway = self.template.add_resource(RestApi("APIGateway", Name=self.build_resource_name("api-gateway")))
+        api_gateway = self.template.add_resource(
+            RestApi("APIGateway", Name=self.build_resource_name("api-gateway"), Tags=self.resource_tags("APIGateway"),)
+        )
 
         # API Gateway Stage
         api_gateway_deployment = self.template.add_resource(
@@ -383,6 +390,7 @@ class CloudformationStack:
                 StageName=API_DEPLOYMENT_STAGE,
                 RestApiId=Ref(api_gateway),
                 DeploymentId=Ref(api_gateway_deployment),
+                Tags=self.resource_tags(f"APIGatewayStage{API_DEPLOYMENT_STAGE}"),
             )
         )
 
@@ -394,6 +402,7 @@ class CloudformationStack:
                 Quota=QuotaSettings(Limit=50000, Period="MONTH"),
                 Throttle=ThrottleSettings(BurstLimit=500, RateLimit=5000),
                 ApiStages=[ApiStage(ApiId=Ref(api_gateway), Stage=Ref(api_gateway_stage))],
+                Tags=self.resource_tags("APIGatewayUsagePlan"),
             )
         )
 
@@ -422,7 +431,7 @@ class CloudformationStack:
                             ],
                         ),
                     ),
-                )
+                ),
             )
 
         # API Gateway Lambda method
@@ -544,6 +553,7 @@ class CloudformationStack:
                         }
                     ],
                 },
+                Tags=self.resource_tags("GlueExecutionRole"),
             )
         )
 
@@ -592,7 +602,7 @@ class CloudformationStack:
             )
         )
 
-        # add templates for enabled modules
+        # add stack templates for enabled modules
         if self.exists:
             for module in self.modules:
                 echo.enum_elm(f"preparing stack for module {module.id}")
@@ -602,7 +612,7 @@ class CloudformationStack:
                 outputs_prefixed = {}
                 for title, output in module_stack.outputs.items():
                     # e.g. emr-spark-cluster => EmrSparkCluster
-                    module_name = to_camel_case(module.id)
+                    module_name = dashed_to_camel_case(module.id)
                     output.title = f"{module_name}{output.title}"
                     outputs_prefixed[output.title] = output
                 module_stack.outputs = outputs_prefixed
