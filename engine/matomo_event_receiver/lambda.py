@@ -7,6 +7,7 @@ from urllib.parse import parse_qsl, urlparse
 import boto3
 import requests
 import schema
+from anonymizeip import anonymize_ip
 from dateutil.parser import parse as date_parse
 
 firehose_client = boto3.client("firehose")
@@ -23,7 +24,6 @@ LOOKUP_CACHE = {
 
 
 def lambda_handler(event_in, context):
-    print(event_in)
     event_out = {
         "user_agent": event_in["requestContext"]["identity"]["userAgent"],
         "ip": event_in["requestContext"]["identity"]["sourceIp"],
@@ -81,6 +81,10 @@ def lambda_handler(event_in, context):
     # IP lookup
     ip_geocoding_enabled = True if os.environ.get("IP_GEOCODING_ENABLED") == "true" else False
     if ip_geocoding_enabled and event_out["ip"]:
+        # mask ip address
+        if os.environ.get("IP_GEOCODING_ENABLED") == "true":
+            event_out["ip"] = anonymize_ip(event_out["ip"])
+
         # cache hit?
         cached = LOOKUP_CACHE["ip"][event_out["ip"]]
         if cached:

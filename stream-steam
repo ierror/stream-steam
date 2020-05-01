@@ -44,9 +44,18 @@ def config():
     echo.enum_elm("AWS Region", nl=False)
     cfg.set("aws_region_name", click.prompt("AWS Region", default=cfg.get("aws_region_name") or "eu-central-1"))
 
+    # IP Address Masking
+    echo.h1(
+        "IP Address masking allows to anonymize IP addresses by setting last octet of IPv4 IPs or the last 80 bits of IPv6 IPs to zeros"
+    )
+    if click.confirm("Do you want to enable IP Address masking?", default="y"):
+        cfg.set("ip_address_masking_enabled", "true")
+    else:
+        cfg.set("ip_address_masking_enabled", "false")
+
     # Geo location lookup
-    echo.h1("Configure IP geolocation lookup - requires an https://ipinfo.io account")
-    if click.confirm("Do you want to enable IP geolocation lookup?"):
+    echo.h1("IP geolocation lookup - requires an https://ipinfo.io account")
+    if click.confirm("Do you want to enable IP geolocation lookup?", default="y"):
         echo.enum_elm("IPInfo API Token", nl=False)
         cfg.set(
             "ip_info_api_token",
@@ -57,8 +66,8 @@ def config():
         cfg.set("ip_geocoding_enabled", "false")
 
     # Device type detection
-    echo.h1("Configure Device Type detection - requires an https://userstack.com/ account ")
-    if click.confirm("Do you want to enable device type detection?"):
+    echo.h1("Device Type detection - requires an https://userstack.com/ account ")
+    if click.confirm("Do you want to enable device type detection?", default="y"):
         echo.enum_elm("Userstack API Token", nl=False)
         cfg.set(
             "userstack_api_token",

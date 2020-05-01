@@ -20,7 +20,16 @@ Scalable and Hackable Analytics on AWS
 
 StreamSteam is a framework for creating event based near real-time analytics pipelines on AWS.
 
-Installed and configured in minutes, yet extensible and scalable.
+
+At a Glance
+===========
+
+* scalable event pipeline installed in minutes
+* Web, iOS and Android tracking client examples available
+* GDPR compliant IP(v4,v6) masking
+* redash module to analyze your data and create Dashboards
+* Spark Cluster module available that allows Big Data processing
+* extensible architecture
 
 Walkthrough
 ===========

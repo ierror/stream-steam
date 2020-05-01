@@ -56,7 +56,7 @@ After a successful deployment it can take up to 5 minutes for the Redash web ser
 
 2. Initial Setup
 
-* Start the howto module command and open the URL that is shown below the section ``connect via HTTP to redash``
+* Start the howto module command and open the URL that is shown below the section `connect via HTTP to redash`
 
 .. code-block:: bash
 
@@ -130,7 +130,7 @@ A Spark Cluster for your data
 
 2. Use the Spark cluster
 
-* Start the howto module command and follow the instructions below the section ``How to connect to the cluster``
+* Start the howto module command and follow the instructions below the section `How to connect to the cluster`
 
 .. code-block:: bash
 

@@ -360,6 +360,7 @@ class CloudformationStack:
                         "IP_INFO_API_TOKEN": self.cfg.get("ip_info_api_token"),
                         "USERSTACK_API_TOKEN": self.cfg.get("userstack_api_token"),
                         "DEVICE_DETECTION_ENABLED": self.cfg.get("device_detection_enabled"),
+                        "IP_ADDRESS_MASKING_ENABLED": self.cfg.get("ip_address_masking_enabled"),
                     }
                 ),
                 Role=GetAtt("LambdaExecutionRole", "Arn"),
@@ -597,7 +598,7 @@ class CloudformationStack:
         for resource_name, resource in chain(self.template_initial.resources.items(), self.template.resources.items()):
             if "Tags" not in resource.props:
                 continue
-            tags_to_add = Tags(Name=camel_case_to_dashed(resource_name))
+            tags_to_add = Tags(Name=f"{self.name}-{camel_case_to_dashed(resource_name)}")
             tags_existing = getattr(resource, "Tags", Tags())
             setattr(resource, "Tags", tags_existing + tags_to_add)
 
@@ -620,14 +621,14 @@ class CloudformationStack:
                 for resource_name, resource in module_stack.resources.items():
                     if "Name" not in resource.props:
                         continue
-                    name = f"{module.id}-{camel_case_to_dashed(resource_name)}"
+                    name = f"{self.name}-{module.id}-{camel_case_to_dashed(resource_name)}"
                     setattr(resource, "Name", name)
 
                 # add Name tag to all resources that supports tagging
                 for resource_name, resource in module_stack.resources.items():
                     if "Tags" not in resource.props:
                         continue
-                    name_tag = f"{module.id}-{camel_case_to_dashed(resource_name)}"
+                    name_tag = f"{self.name}-{module.id}-{camel_case_to_dashed(resource_name)}"
                     tags_to_add = Tags(Name=name_tag)
                     tags_existing = getattr(resource, "Tags", Tags())
                     setattr(resource, "Tags", tags_existing + tags_to_add)

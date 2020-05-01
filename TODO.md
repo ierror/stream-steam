@@ -3,7 +3,6 @@ TODOs
 
 # P1
 - destroy stack (with enabled module), disable app => stack is redeployed
-- resource tagging, also for modules
 - remove ssh keys on post deploy
 - show latest stack errors if deployment fails
 - option to mask ips (GDPR) + demo
