@@ -7,6 +7,7 @@ Overview
 Modules provide the possibility to extend StreamSteam.
 Two modules are currently shipped with StreamSteam. Own modules can be created.
 
+
 * List all available modules
 
 .. code-block::
@@ -34,6 +35,12 @@ Two modules are currently shipped with StreamSteam. Own modules can be created.
 
 Redash EC2 Instance
 -------------------
+
+Dashboards for your data
+
+
+.. image:: _static/modules/redash/teaser.png
+    :width: 800px
 
 
 1. Enable and deploy the module
@@ -96,3 +103,29 @@ Choose ``Amazon Athena``, you can find the necessary settings in the `setup reda
 5. Build a Dashboard
 
 `Redash Documentation <https://redash.io/help/user-guide/dashboards/dashboard-editing>`_
+
+
+EMR Spark Cluster
+-----------------
+
+
+A Spark Cluster for your data
+
+
+.. image:: _static/modules/emr-spark-cluster/teaser.png
+    :width: 800px
+
+
+1. Enable and deploy the module
+
+.. code-block::
+
+    ./stream-steam module enable --name emr-spark-cluster
+
+2. Use the Spark cluster
+
+* Start the howto module command and follow the instructions below the section ``How to connect to the cluster``
+
+.. code-block::
+
+    ./stream-steam module howto --name emr-spark-cluster
