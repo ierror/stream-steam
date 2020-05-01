@@ -19,7 +19,7 @@ Web
 
 Run web tracking demo
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam demo-tracking-web
 
@@ -30,7 +30,7 @@ iOS
 
 Run iOS tracking demo
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam demo-tracking-ios
 
@@ -41,7 +41,7 @@ Android
 
 Run Android tracking demo
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam demo-tracking-android
 

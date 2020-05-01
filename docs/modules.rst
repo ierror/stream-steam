@@ -12,25 +12,25 @@ Two modules are currently shipped with StreamSteam. Own modules can be created.
 
 * List all available modules
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module list
 
 * Enable a module
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module enable --name module-name
 
 * Show module howto
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module howto --name module-name
 
 * Disable a Module
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module disable --name module-name
 
@@ -47,7 +47,7 @@ Dashboards for your data
 
 1. Enable and deploy the module
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module enable --name redash
 
@@ -58,7 +58,7 @@ After a successful deployment it can take up to 5 minutes for the Redash web ser
 
 * Start the howto module command and open the URL that is shown below the section ``connect via HTTP to redash``
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module howto --name redash
 
@@ -108,7 +108,7 @@ Choose ``Amazon Athena``, you can find the necessary settings in the `setup reda
 
 6. Disable the module
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module disable --name redash
 
@@ -124,7 +124,7 @@ A Spark Cluster for your data
 
 1. Enable and deploy the module
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module enable --name emr-spark-cluster
 
@@ -132,12 +132,12 @@ A Spark Cluster for your data
 
 * Start the howto module command and follow the instructions below the section ``How to connect to the cluster``
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module howto --name emr-spark-cluster
 
 3. Disable the module
 
-.. code-block::
+.. code-block:: bash
 
     ./stream-steam module disable --name emr-spark-cluster
