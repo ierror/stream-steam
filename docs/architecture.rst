@@ -98,9 +98,21 @@ Modules
 
 Modules provide the possibility to extend StreamSteam.
 
+Module structure
+----------------
+
+A module is a Python package. The following files define a module
+
+- `manifest.py <https://github.com/ierror/stream-steam/tree/develop/modules/redash/manifest.py>`_ A manifest to describe a module
+
+.. literalinclude:: ../modules/redash/manifest.py
+   :language: python
+
+- `stack.py <https://github.com/ierror/stream-steam/tree/develop/modules/redash/stack.py>`_ A cloudformation stack that defines all resources required for a module
+
+See the `Redash EC2 Instance <https://github.com/ierror/stream-steam/tree/develop/modules/redash/>`_ module for an example.
+
+Shipped Modules
+----------------
+
 Two :doc:`Modules <../modules>` are currently shipped with StreamSteam. Own modules can be created.
-
-* :doc:`Redash EC2 Instance <../modules>`
-* :doc:`EMR Spark Cluster <../modules>`
-
-
