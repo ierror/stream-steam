@@ -78,13 +78,13 @@ def lambda_handler(event_in, context):
             LOOKUP_CACHE["user_agent"][event_out["user_agent"]] = response_json
         event_out["device_info"] = device_info
 
+    # mask ip address
+    if os.environ.get("IP_ADDRESS_MASKING_ENABLED") == "true":
+        event_out["ip"] = anonymize_ip(event_out["ip"])
+
     # IP lookup
     ip_geocoding_enabled = True if os.environ.get("IP_GEOCODING_ENABLED") == "true" else False
     if ip_geocoding_enabled and event_out["ip"]:
-        # mask ip address
-        if os.environ.get("IP_GEOCODING_ENABLED") == "true":
-            event_out["ip"] = anonymize_ip(event_out["ip"])
-
         # cache hit?
         cached = LOOKUP_CACHE["ip"][event_out["ip"]]
         if cached:

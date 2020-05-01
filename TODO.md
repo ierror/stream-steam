@@ -5,17 +5,15 @@ TODOs
 - destroy stack (with enabled module), disable app => stack is redeployed
 - remove ssh keys on post deploy
 - show latest stack errors if deployment fails
-- option to mask ips (GDPR) + demo
 - split credentials cfg and stack cfg
 - backend event example 
-- clients docu
-- integrate matomo missing params, and e-commerce params
-- partition athena data?
-- cloudwatch alerting / monitoring
-- cloudwatch expire logs
 
 # P2
-- ipv6 support (api gw, redash, ip masking)
+- integrate matomo missing params, and e-commerce params
+- partition athena data
+- cloudwatch alerting / monitoring
+- cloudwatch expire logs
+- ipv6 support (api gw, redash)
 - custom domain for API GW
 - API GW configurable: UsagePlan, ThrottleSettings, QuotaSettings?
 - write parquet files instead of json
