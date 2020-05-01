@@ -616,6 +616,13 @@ class CloudformationStack:
                     outputs_prefixed[output.title] = output
                 module_stack.outputs = outputs_prefixed
 
+                # add Name attr to all resources that supports the Name attr
+                for resource_name, resource in module_stack.resources.items():
+                    if "Name" not in resource.props:
+                        continue
+                    name = f"{module.id}-{camel_case_to_dashed(resource_name)}"
+                    setattr(resource, "Name", name)
+
                 # add Name tag to all resources that supports tagging
                 for resource_name, resource in module_stack.resources.items():
                     if "Tags" not in resource.props:

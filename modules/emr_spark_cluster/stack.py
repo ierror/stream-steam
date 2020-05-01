@@ -1,4 +1,4 @@
-from troposphere import GetAtt, Output, Parameter, Ref, Tags, Template, emr, iam
+from troposphere import GetAtt, Output, Parameter, Ref, Template, emr, iam
 from troposphere.constants import M4_LARGE
 from troposphere.ec2 import (
     VPC,
@@ -46,29 +46,15 @@ def build(ssh_keypair_name):
         )
     )
 
-    ref_stack_id = Ref("AWS::StackId")
-    vpc = template.add_resource(
-        VPC("VPC", CidrBlock="10.0.0.0/16", Tags=Tags(Application=ref_stack_id, Name="EMRSparkCluster"))
-    )
+    vpc = template.add_resource(VPC("VPC", CidrBlock="10.0.0.0/16"))
 
-    subnet = template.add_resource(
-        Subnet(
-            "Subnet",
-            CidrBlock="10.0.0.0/24",
-            VpcId=Ref(vpc),
-            Tags=Tags(Application=ref_stack_id, Name="EMRSparkCluster"),
-        )
-    )
+    subnet = template.add_resource(Subnet("Subnet", CidrBlock="10.0.0.0/24", VpcId=Ref(vpc),))
 
-    internet_gateway = template.add_resource(
-        InternetGateway("InternetGateway", Tags=Tags(Application=ref_stack_id, Name="EMRSparkCluster"))
-    )
+    internet_gateway = template.add_resource(InternetGateway("InternetGateway"))
     attach_gateway = template.add_resource(
         VPCGatewayAttachment("AttachGateway", VpcId=Ref(vpc), InternetGatewayId=Ref(internet_gateway))
     )
-    route_table = template.add_resource(
-        RouteTable("RouteTable", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id, Name="EMRSparkCluster"))
-    )
+    route_table = template.add_resource(RouteTable("RouteTable", VpcId=Ref(vpc)))
 
     template.add_resource(
         Route(
@@ -84,9 +70,7 @@ def build(ssh_keypair_name):
         SubnetRouteTableAssociation("SubnetRouteTableAssociation", SubnetId=Ref(subnet), RouteTableId=Ref(route_table),)
     )
 
-    network_acl = template.add_resource(
-        NetworkAcl("NetworkAcl", VpcId=Ref(vpc), Tags=Tags(Application=ref_stack_id, Name="EMRSparkCluster"),)
-    )
+    network_acl = template.add_resource(NetworkAcl("NetworkAcl", VpcId=Ref(vpc)))
 
     template.add_resource(
         NetworkAclEntry(
@@ -178,7 +162,6 @@ def build(ssh_keypair_name):
                 SecurityGroupRule(IpProtocol="tcp", FromPort="22", ToPort="22", CidrIp=Ref(sshlocation_param)),
             ],
             VpcId=Ref(vpc),
-            Tags=Tags(Application=ref_stack_id, Name="EMRSparkCluster"),
         )
     )
 
@@ -216,8 +199,7 @@ def build(ssh_keypair_name):
 
     cluster = template.add_resource(
         emr.Cluster(
-            "EMRSparkCluster",
-            Name="EMR Spark Cluster",
+            "EMRCluster",
             ReleaseLabel="emr-6.0.0",
             JobFlowRole=Ref(emr_instance_profile),
             ServiceRole=Ref(emr_service_role),
@@ -246,7 +228,6 @@ def build(ssh_keypair_name):
             ),
             Applications=[emr.Application(Name="Spark")],
             VisibleToAllUsers="true",
-            Tags=Tags(Name="EMR Sample Cluster"),
         )
     )
 
