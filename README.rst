@@ -1,10 +1,22 @@
+.. StreamSteam documentation master file, created by
+   sphinx-quickstart on Tue Apr 21 10:44:18 2020.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
 ======================================
 Scalable and Hackable Analytics on AWS
 ======================================
 
-.. image:: https://readthedocs.org/projects/streamsteam/badge/?version=latest
-   :target: https://streamsteam.readthedocs.io/en/latest/
-   :alt: Documentation Status
+
+.. toctree::
+   :maxdepth: 3
+   :hidden:
+
+   get_started
+   architecture
+   clients
+   modules
+
 
 StreamSteam is a framework for creating event based near real-time analytics pipelines on AWS.
 
@@ -19,15 +31,13 @@ At a Glance
 * Spark Cluster module available that allows Big Data processing
 * extensible architecture
 
+Walkthrough
+===========
 
-For more documentation, please see https://streamsteam.readthedocs.io/en/latest/
+.. raw:: html
 
-Walkthrough Video
-=================
+   <iframe id="walkthrough" width="600" height="450" src="https://www.youtube.com/embed/Z8YgLPXMyhA" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-.. image:: https://img.youtube.com/vi/Z8YgLPXMyhA/0.jpg
-   :target: https://www.youtube.com/watch?v=Z8YgLPXMyhA
-   :alt: Walkthrough Video
 
 Walkthrough Chapters
 --------------------
