@@ -1,6 +1,6 @@
 import re
 
-RE_CAMELCASE_TO_DASHED = re.compile(r"(?<!^)(?=[A-Z])")
+RE_CAMELCASE_TO_DASHED = re.compile(r"(?<!^)(?=[A-Z][^A-Z]+)")
 
 
 def dashed_to_camel_case(dashed_str):

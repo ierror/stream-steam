@@ -2,6 +2,7 @@ import hashlib
 import io
 import os
 import re
+from itertools import chain
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -82,9 +83,6 @@ class CloudformationStack:
         artifact_file = os.path.basename(artifact_file)
         basename, ext = os.path.splitext(artifact_file)
         return f"{basename}_{hash_md5.hexdigest()}{ext}"
-
-    def resource_tags(self, resource_name):
-        return Tags(Name=camel_case_to_dashed(resource_name))
 
     @property
     def stack_id(self):
@@ -339,7 +337,6 @@ class CloudformationStack:
                         }
                     ],
                 },
-                Tags=self.resource_tags("LambdaExecutionRole"),
             )
         )
 
@@ -367,14 +364,11 @@ class CloudformationStack:
                 ),
                 Role=GetAtt("LambdaExecutionRole", "Arn"),
                 Runtime="python3.7",
-                Tags=self.resource_tags("LambdaMatomoEventReceiver"),
             )
         )
 
         # API Gateway
-        api_gateway = self.template.add_resource(
-            RestApi("APIGateway", Name=self.build_resource_name("api-gateway"), Tags=self.resource_tags("APIGateway"),)
-        )
+        api_gateway = self.template.add_resource(RestApi("APIGateway", Name=self.build_resource_name("api-gateway")))
 
         # API Gateway Stage
         api_gateway_deployment = self.template.add_resource(
@@ -390,7 +384,6 @@ class CloudformationStack:
                 StageName=API_DEPLOYMENT_STAGE,
                 RestApiId=Ref(api_gateway),
                 DeploymentId=Ref(api_gateway_deployment),
-                Tags=self.resource_tags(f"APIGatewayStage{API_DEPLOYMENT_STAGE}"),
             )
         )
 
@@ -402,7 +395,6 @@ class CloudformationStack:
                 Quota=QuotaSettings(Limit=50000, Period="MONTH"),
                 Throttle=ThrottleSettings(BurstLimit=500, RateLimit=5000),
                 ApiStages=[ApiStage(ApiId=Ref(api_gateway), Stage=Ref(api_gateway_stage))],
-                Tags=self.resource_tags("APIGatewayUsagePlan"),
             )
         )
 
@@ -553,7 +545,6 @@ class CloudformationStack:
                         }
                     ],
                 },
-                Tags=self.resource_tags("GlueExecutionRole"),
             )
         )
 
@@ -602,6 +593,14 @@ class CloudformationStack:
             )
         )
 
+        # add Name tag to all resources that supports tagging
+        for resource_name, resource in chain(self.template_initial.resources.items(), self.template.resources.items()):
+            if "Tags" not in resource.props:
+                continue
+            tags_to_add = Tags(Name=camel_case_to_dashed(resource_name))
+            tags_existing = getattr(resource, "Tags", Tags())
+            setattr(resource, "Tags", tags_existing + tags_to_add)
+
         # add stack templates for enabled modules
         if self.exists:
             for module in self.modules:
@@ -616,6 +615,15 @@ class CloudformationStack:
                     output.title = f"{module_name}{output.title}"
                     outputs_prefixed[output.title] = output
                 module_stack.outputs = outputs_prefixed
+
+                # add Name tag to all resources that supports tagging
+                for resource_name, resource in module_stack.resources.items():
+                    if "Tags" not in resource.props:
+                        continue
+                    name_tag = f"{module.id}-{camel_case_to_dashed(resource_name)}"
+                    tags_to_add = Tags(Name=name_tag)
+                    tags_existing = getattr(resource, "Tags", Tags())
+                    setattr(resource, "Tags", tags_existing + tags_to_add)
 
                 # deploy stack as nested stack
                 with TemporaryDirectory() as tmp_dir:
