@@ -49,6 +49,11 @@ Walkthrough Chapters
 - `How to use the EMR Spark Cluster module <https://www.youtube.com/watch?v=Z8YgLPXMyhA&t=15m00s>`_
 - `Destroy the Stack <https://www.youtube.com/watch?v=Z8YgLPXMyhA&t=20m30s>`_
 
+Sourcecode
+==========
+
+`Github <https://github.com/ierror/stream-steam>`_
+
 Contact
 =======
 
