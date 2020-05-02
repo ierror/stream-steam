@@ -60,7 +60,7 @@ The data storage for events and artifacts required for deployment.
 
 Structure:
 
-- `events/enriched/` Target prefix for enriched events writtem by the `Kines Firehose Event Compressor`_
+- `events/enriched/` Target prefix for enriched events writtem by the `Kines Firehose Event Compressor`_.
 - `tmp/` Temp storage for deployment artifacts etc.
 
 Athena / Glue

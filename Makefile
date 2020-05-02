@@ -4,7 +4,6 @@ PROJECT := config
 PROJECT_DIR := $(abspath $(shell pwd))
 
 release:
-	cp docs/index.rst README.rst
 	git commit -m "bump v$(VERSION)" README.rst
 	git checkout master
 	git merge develop -m "bump v$(VERSION)"
