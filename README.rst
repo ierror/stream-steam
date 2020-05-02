@@ -13,7 +13,7 @@ At a Glance
 ===========
 
 * scalable event pipeline installed in minutes
-* Web-, iOS- and Android tracking client examples available
+* Web, iOS and Android tracking client examples available
 * GDPR compliant IP(v4,v6) masking
 * redash module to analyze your data and create Dashboards
 * Spark Cluster module available that allows Big Data processing
